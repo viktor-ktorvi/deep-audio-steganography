@@ -10,5 +10,5 @@ you're on Linux you should be able to just run the _wget_ commands in the termin
 can't test it :disappointed_relieved:). The folder _download_scritps_ has PowerShell scripts ready for use 
 but _download_wavegan.py_ just runs the same commands from a subrpocess call.
 
-## Generating data with WaveGAN
+### Generating data with WaveGAN
 Choose you're _DATASET_ and run _generate_data.py_
