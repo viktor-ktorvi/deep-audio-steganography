@@ -43,7 +43,7 @@ if __name__ == "__main__":
         commands = [
             'wget ' + BASE_URL + download_filename[dataset] + '.ckpt.index -O ' + dataset + '\model.ckpt.index',  # 1)
             'wget ' + BASE_URL + download_filename[dataset] + '.ckpt.data-00000-of-00001 -O ' +
-            dataset + '\model.ckpt.data-00000-of-00001',    # 2)
+            dataset + '\model.ckpt.data-00000-of-00001',  # 2)
             'wget ' + BASE_URL + download_filename[dataset] + '_infer.meta -O ' + dataset + '\infer.meta'
         ]
 
