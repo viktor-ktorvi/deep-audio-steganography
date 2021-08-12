@@ -1,4 +1,3 @@
-# Confirm GPU is running
 from tensorflow.python.client import device_lib
 import torch
 
@@ -13,6 +12,10 @@ def print_dashes(num_dash):
         print('=', end='')
     print('\n')
 
+
+'''
+    Check if Tensorflow and PyTorch are seeing the GPU correctly
+'''
 
 if __name__ == "__main__":
     num_dash = 50
