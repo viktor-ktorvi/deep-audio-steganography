@@ -19,6 +19,10 @@ OUTPUT_LEN = 16384
 
 Fs = 16000  # Hz
 
+'''
+    Generate audio data(as .npy and .wav) using the pretrained WaveGAN 
+'''
+
 if __name__ == "__main__":
     tf.compat.v1.reset_default_graph()
     tf.compat.v1.disable_eager_execution()
