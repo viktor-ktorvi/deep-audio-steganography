@@ -16,6 +16,10 @@ download_filename = {
 
 BASE_URL = 'https://s3.amazonaws.com/wavegan-v1/models/'
 
+'''
+    Download the pretrained models of WaveGAN as .ckpt files
+'''
+
 if __name__ == "__main__":
 
     # create a folder for the models
@@ -43,6 +47,7 @@ if __name__ == "__main__":
             'wget ' + BASE_URL + download_filename[dataset] + '_infer.meta -O ' + dataset + '\infer.meta'
         ]
 
+        # run the commads in PowerShell
         for command in commands:
             p = subprocess.call(['powershell.exe', command], stdout=sys.stdout)
     print("\nDone")
