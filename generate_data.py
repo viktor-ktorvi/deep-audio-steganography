@@ -6,11 +6,11 @@ from scipy.io.wavfile import write
 from pathlib import Path
 from tqdm import tqdm
 
+from paths import DATA_FILENAME, MODELS_PATH, TRAIN_DATA_PATH
+
 DATASET = 'birds'  # one of 'digits', 'speech', 'birds', 'drums', 'piano'
 
-DATA_PATH = 'data'
-DATA_FILENAME = 'audio_data'
-MODELS_PATH = 'waveGAN_models'
+DATA_PATH = TRAIN_DATA_PATH
 
 BATCH_SIZE = 64
 NUM_BATCHES = 100
