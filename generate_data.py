@@ -12,7 +12,7 @@ DATASET = 'birds'  # one of 'digits', 'speech', 'birds', 'drums', 'piano'
 
 DATA_PATH = TRAIN_DATA_PATH
 
-BATCH_SIZE = 64
+GENERATE_BATCH_SIZE = 64
 NUM_BATCHES = 100
 INPUT_LEN = 100
 OUTPUT_LEN = 16384
@@ -32,8 +32,8 @@ if __name__ == "__main__":
     sess = tf.compat.v1.InteractiveSession()
     saver.restore(sess, os.path.join(MODELS_PATH, DATASET, 'model.ckpt'))
 
-    data = np.zeros((NUM_BATCHES * BATCH_SIZE, OUTPUT_LEN), dtype=np.float32)
-    noise = np.zeros((NUM_BATCHES * BATCH_SIZE, INPUT_LEN), dtype=np.float32)
+    data = np.zeros((NUM_BATCHES * GENERATE_BATCH_SIZE, OUTPUT_LEN), dtype=np.float32)
+    noise = np.zeros((NUM_BATCHES * GENERATE_BATCH_SIZE, INPUT_LEN), dtype=np.float32)
 
     z = graph.get_tensor_by_name('z:0')
     G_z = graph.get_tensor_by_name('G_z:0')[:, :, 0]
@@ -41,13 +41,13 @@ if __name__ == "__main__":
 
     start = time.time()
     for i in tqdm(range(NUM_BATCHES)):
-        _z = np.random.randn(BATCH_SIZE, INPUT_LEN)
+        _z = np.random.randn(GENERATE_BATCH_SIZE, INPUT_LEN)
 
         # G_z_spec is not being used
         _G_z, _G_z_spec = sess.run([G_z, G_z_spec], {z: _z})
 
-        data[i * BATCH_SIZE:(i + 1) * BATCH_SIZE, :] = _G_z
-        noise[i * BATCH_SIZE:(i + 1) * BATCH_SIZE, :] = _z
+        data[i * GENERATE_BATCH_SIZE:(i + 1) * GENERATE_BATCH_SIZE, :] = _G_z
+        noise[i * GENERATE_BATCH_SIZE:(i + 1) * GENERATE_BATCH_SIZE, :] = _z
 
     print('Finished! (Took {} seconds)'.format(time.time() - start))
 

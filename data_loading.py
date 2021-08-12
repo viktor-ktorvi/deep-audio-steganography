@@ -1,7 +1,9 @@
 import os
 import numpy as np
+import torch
 
 from paths import TRAIN_DATA_PATH, DATA_FILENAME
+from constants import DEVICE
 
 DATA_PATH = TRAIN_DATA_PATH
 DATASET = 'birds'
