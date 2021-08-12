@@ -1,12 +1,40 @@
 import os
 import numpy as np
 import torch
+from torch.utils.data import DataLoader, TensorDataset
 
 from paths import TRAIN_DATA_PATH, DATA_FILENAME
-from constants import DEVICE
+from constants import DEVICE, HOLDOUT_RATIO
+from parameters import MESSAGE_LEN, BOTTLENECK_CHANNEL_SIZE
 
 DATA_PATH = TRAIN_DATA_PATH
-DATASET = 'birds'
+DATASET_NAME = 'birds'
+
+
+def prepare_messages(messages):
+    NUM_MESSAGES = messages.shape[0]
+    LEN_MESSAGES = messages.shape[1]
+    messages_reshaped = messages.reshape(NUM_MESSAGES, 1, LEN_MESSAGES)
+    return np.broadcast_to(messages_reshaped, (NUM_MESSAGES, BOTTLENECK_CHANNEL_SIZE, LEN_MESSAGES))
+
 
 if __name__ == '__main__':
-    data = np.load(os.path.join(DATA_PATH, DATASET, DATA_FILENAME + '.npy'))
+    data = np.load(os.path.join(DATA_PATH, DATASET_NAME, DATA_FILENAME + '.npy'))
+
+    NUM_SIGNALS = data.shape[0]
+    SIGNAL_LEN = data.shape[1]
+
+    TRAIN_NUM = round(HOLDOUT_RATIO * NUM_SIGNALS)
+    TEST_NUM = NUM_SIGNALS - TRAIN_NUM
+    VAL_NUM = round(TEST_NUM / 2)
+    TEST_NUM -= VAL_NUM
+
+    messages = np.random.randint(low=0, high=2, size=(NUM_SIGNALS, MESSAGE_LEN))
+    messages_reshaped = prepare_messages(messages)
+
+    TENSOR_DATASET = TensorDataset(torch.tensor(data), torch.tensor(messages), torch.tensor(messages_reshaped))
+
+    TRAIN_SET, validation_and_testing = torch.utils.data.random_split(TENSOR_DATASET, [TRAIN_NUM, TEST_NUM + VAL_NUM])
+    TEST_SET, validation_set = torch.utils.data.random_split(validation_and_testing, [TEST_NUM, VAL_NUM])
+
+    # TODO napraviti od ovoga krstenu f-ju
