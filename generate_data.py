@@ -16,6 +16,7 @@ BATCH_SIZE = 64
 NUM_BATCHES = 100
 INPUT_LEN = 100
 OUTPUT_LEN = 16384
+SAVE_AS_WAV_PERCENT = 0.05
 
 Fs = 16000  # Hz
 
@@ -55,11 +56,15 @@ if __name__ == "__main__":
     Path(DATA_PATH).mkdir(parents=True, exist_ok=True)
     Path(os.path.join(DATA_PATH, DATASET)).mkdir(parents=True, exist_ok=True)
 
+    # save as .npy
     with open(os.path.join(DATA_PATH, DATASET, DATA_FILENAME + '.npy'), 'wb') as f:
         np.save(f, data)
 
+    # save every modulus_num-th sample as .wav
+    modulus_num = np.ceil(1 / SAVE_AS_WAV_PERCENT) if SAVE_AS_WAV_PERCENT > 0.0 else data.shape[0]
+
     for i in range(data.shape[0]):
-        if i % round(data.shape[0] * 0.05) == 0:
+        if i % modulus_num == 0:
             write(os.path.join(DATA_PATH, DATASET, DATASET + str(i) + '.wav'), Fs, data[i, :])
 
     print('\nDone')
