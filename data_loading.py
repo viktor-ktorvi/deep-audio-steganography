@@ -1,10 +1,10 @@
 import os
 import numpy as np
 import torch
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import TensorDataset
 
 from paths import TRAIN_DATA_PATH, DATA_FILENAME
-from constants import DEVICE, HOLDOUT_RATIO
+from constants import HOLDOUT_RATIO
 from parameters import MESSAGE_LEN, BOTTLENECK_CHANNEL_SIZE
 
 DATA_PATH = TRAIN_DATA_PATH
