@@ -9,10 +9,9 @@ from constants.parameters import MESSAGE_LEN, BOTTLENECK_CHANNEL_SIZE, STRIDES
 
 
 class Encoder(nn.Module):
-    def __init__(self):
+    def __init__(self, strides):
         super(Encoder, self).__init__()
 
-        strides = STRIDES
         kernel_sizes = [KERNELS['large'], KERNELS['medium'], KERNELS['small']]
         out_channels = [CHANNELS['small'], CHANNELS['medium'], BOTTLENECK_CHANNEL_SIZE]
 
@@ -92,7 +91,7 @@ class Encoder(nn.Module):
 
 
 if __name__ == '__main__':
-    encoder = Encoder().to(DEVICE)
+    encoder = Encoder(strides=STRIDES).to(DEVICE)
     print(encoder)
 
     batch_size = 17
