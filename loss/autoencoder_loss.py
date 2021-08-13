@@ -6,7 +6,7 @@ class AutoEncoderLoss(nn.Module):
         super(AutoEncoderLoss, self).__init__()
 
         self.encoder_criterion = nn.MSELoss()
-        self.decoder_criterion = nn.BCELoss()
+        self.decoder_criterion = nn.MSELoss()
 
     def forward(self, modified_audio, original_audio, reconstructed_message, original_message):
 

@@ -5,17 +5,26 @@ from torch.utils.data import TensorDataset
 
 from constants.paths import TRAIN_DATA_PATH, DATA_FILENAME
 from constants.constants import HOLDOUT_RATIO
-from constants.parameters import MESSAGE_LEN, BOTTLENECK_CHANNEL_SIZE
+from constants.parameters import MESSAGE_LEN, BOTTLENECK_CHANNEL_SIZE, HIGH
 
 DATA_PATH = TRAIN_DATA_PATH
 DATASET_NAME = 'birds'
 
 
-def prepare_messages(messages):
+def reshape_messages(messages):
     NUM_MESSAGES = messages.shape[0]
     LEN_MESSAGES = messages.shape[1]
     messages_reshaped = messages.reshape(NUM_MESSAGES, 1, LEN_MESSAGES)
     return np.broadcast_to(messages_reshaped, (NUM_MESSAGES, BOTTLENECK_CHANNEL_SIZE, LEN_MESSAGES))
+
+
+
+def scale_messages(messages):
+    return messages / HIGH - (HIGH - 1) / 2 / HIGH
+
+
+def inverse_scale_messages(messages):
+    return (messages + (HIGH - 1) / 2 / HIGH) * HIGH
 
 
 def get_dataset(normalize=False):
@@ -36,8 +45,9 @@ def get_dataset(normalize=False):
     VAL_NUM = round(TEST_NUM / 2)
     TEST_NUM -= VAL_NUM
 
-    messages = np.random.randint(low=0, high=2, size=(NUM_SIGNALS, MESSAGE_LEN))
-    messages_reshaped = prepare_messages(messages)
+    messages = np.random.randint(low=0, high=HIGH, size=(NUM_SIGNALS, MESSAGE_LEN))
+    messages = scale_messages(messages)
+    messages_reshaped = reshape_messages(messages)
 
     tensor_dataset = TensorDataset(torch.tensor(data), torch.tensor(messages), torch.tensor(messages_reshaped))
 

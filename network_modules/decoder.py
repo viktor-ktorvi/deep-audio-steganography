@@ -61,7 +61,7 @@ class Decoder(nn.Module):
             else:
                 linear_modules.append(nn.Sequential(
                     nn.Linear(**linear_size.parameters),
-                    nn.Sigmoid()
+                    # nn.Tanh()
                 ))
 
         self.dense = nn.Sequential(*linear_modules)

@@ -5,8 +5,9 @@ from constants.constants import CHANNELS
 MESSAGE_LEN = 64
 BOTTLENECK_CHANNEL_SIZE = CHANNELS['large']
 BATCH_SIZE = 64
-NUM_EPOCHS = 10
+NUM_EPOCHS = 100
 LEARNING_RATE = 0.00005
+HIGH = 16
 
 
 def save_parameters(filepath):
@@ -15,7 +16,8 @@ def save_parameters(filepath):
         'BOTTLENECK_CHANNEL_SIZE': BOTTLENECK_CHANNEL_SIZE,
         'BATCH_SIZE': BATCH_SIZE,
         'NUM_EPOCHS': NUM_EPOCHS,
-        'LEARNING_RATE': LEARNING_RATE
+        'LEARNING_RATE': LEARNING_RATE,
+        'HIGH': HIGH
     }
 
     with open(os.path.join(filepath, 'training parameters.json'), 'w') as fp:

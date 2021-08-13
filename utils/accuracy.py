@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from constants.constants import DEVICE
-
+from data_loading import inverse_scale_messages
 
 def pass_data_through(model, dataloader):
     for i, data in enumerate(dataloader, 0):
@@ -27,7 +27,13 @@ def calc_accuracy(model, dataloader):
 
 
 def calc_mean_accuracy(outputs_cpu, test_labels_cpu):
+
     accuracies = []
+
+    outputs_cpu = inverse_scale_messages(outputs_cpu)
+
+    test_labels_cpu = inverse_scale_messages(test_labels_cpu)
+
     for idx in range(outputs_cpu.shape[0]):
         prediction = [test_labels_cpu[idx, i] == round(outputs_cpu[idx, i]) for i in range(outputs_cpu.shape[1])]
         accuracies.append(sum(prediction) / len(prediction))

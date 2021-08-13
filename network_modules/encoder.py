@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import numpy as np
 
-from data_loading import prepare_messages
+from data_loading import reshape_messages
 from utils.sizes import Conv1DLayerSizes, TransposeConv1DLayerSizes
 from constants.constants import CHANNELS, KERNELS, SIGNAL_LEN, DEVICE
 from constants.parameters import MESSAGE_LEN, BOTTLENECK_CHANNEL_SIZE
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     batch_size = 17
 
     messages = np.random.randint(low=0, high=2, size=(batch_size, MESSAGE_LEN))
-    messages_reshaped = prepare_messages(messages)
+    messages_reshaped = reshape_messages(messages)
     messages_reshaped_tensor = torch.tensor(messages_reshaped).to(DEVICE)
 
     x = torch.randn(size=(batch_size, 1, SIGNAL_LEN)).to(DEVICE)
