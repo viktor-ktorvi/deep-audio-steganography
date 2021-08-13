@@ -7,6 +7,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 from constants.paths import DATA_FILENAME, PRETRAINED_MODELS_PATH, TRAIN_DATA_PATH
+from constants.constants import SIGNAL_LEN, FS
 
 DATASET = 'birds'  # one of 'digits', 'speech', 'birds', 'drums', 'piano'
 
@@ -15,10 +16,10 @@ DATA_PATH = TRAIN_DATA_PATH
 GENERATE_BATCH_SIZE = 64
 NUM_BATCHES = 150
 INPUT_LEN = 100
-OUTPUT_LEN = 16384
+OUTPUT_LEN = SIGNAL_LEN
 SAVE_AS_WAV_PERCENT = 0.05
 
-Fs = 16000  # Hz
+Fs = FS  # Hz
 
 '''
     Generate audio data(as .npy and .wav) using the pretrained WaveGAN 
