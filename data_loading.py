@@ -32,9 +32,9 @@ if __name__ == '__main__':
     messages = np.random.randint(low=0, high=2, size=(NUM_SIGNALS, MESSAGE_LEN))
     messages_reshaped = prepare_messages(messages)
 
-    TENSOR_DATASET = TensorDataset(torch.tensor(data), torch.tensor(messages), torch.tensor(messages_reshaped))
+    tensor_dataset = TensorDataset(torch.tensor(data), torch.tensor(messages), torch.tensor(messages_reshaped))
 
-    TRAIN_SET, validation_and_testing = torch.utils.data.random_split(TENSOR_DATASET, [TRAIN_NUM, TEST_NUM + VAL_NUM])
-    TEST_SET, validation_set = torch.utils.data.random_split(validation_and_testing, [TEST_NUM, VAL_NUM])
+    train_set, validation_and_testing = torch.utils.data.random_split(tensor_dataset, [TRAIN_NUM, TEST_NUM + VAL_NUM])
+    test_set, validation_set = torch.utils.data.random_split(validation_and_testing, [TEST_NUM, VAL_NUM])
 
     # TODO napraviti od ovoga krstenu f-ju
