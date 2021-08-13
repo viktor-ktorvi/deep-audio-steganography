@@ -6,7 +6,7 @@ from scipy.io.wavfile import write
 from pathlib import Path
 from tqdm import tqdm
 
-from paths import DATA_FILENAME, MODELS_PATH, TRAIN_DATA_PATH
+from constants.paths import DATA_FILENAME, MODELS_PATH, TRAIN_DATA_PATH
 
 DATASET = 'birds'  # one of 'digits', 'speech', 'birds', 'drums', 'piano'
 

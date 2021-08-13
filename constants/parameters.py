@@ -1,4 +1,4 @@
-from constants import CHANNELS, SIGNAL_LEN
+from constants.constants import CHANNELS, SIGNAL_LEN
 
 MESSAGE_LEN = 64
 BOTTLENECK_CHANNEL_SIZE = CHANNELS['large']

@@ -3,8 +3,7 @@ from torch.utils.data import DataLoader
 import numpy as np
 
 from data_loading import get_dataset
-from constants import DEVICE
-from parameters import BATCH_SIZE
+from constants.parameters import BATCH_SIZE
 
 if __name__ == '__main__':
     np.random.seed(1)

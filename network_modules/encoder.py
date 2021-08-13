@@ -3,9 +3,9 @@ from torch import nn
 import numpy as np
 
 from data_loading import prepare_messages
-from sizes import Conv1DLayerSizes, TransposeConv1DLayerSizes
-from constants import CHANNELS, KERNELS, SIGNAL_LEN, DEVICE
-from parameters import MESSAGE_LEN, BOTTLENECK_CHANNEL_SIZE, STRIDES
+from utils.sizes import Conv1DLayerSizes, TransposeConv1DLayerSizes
+from constants.constants import CHANNELS, KERNELS, SIGNAL_LEN, DEVICE
+from constants.parameters import MESSAGE_LEN, BOTTLENECK_CHANNEL_SIZE, STRIDES
 
 
 class Encoder(nn.Module):
