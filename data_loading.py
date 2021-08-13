@@ -18,11 +18,10 @@ def prepare_messages(messages):
     return np.broadcast_to(messages_reshaped, (NUM_MESSAGES, BOTTLENECK_CHANNEL_SIZE, LEN_MESSAGES))
 
 
-if __name__ == '__main__':
+def get_dataset():
     data = np.load(os.path.join(DATA_PATH, DATASET_NAME, DATA_FILENAME + '.npy'))
 
     NUM_SIGNALS = data.shape[0]
-    SIGNAL_LEN = data.shape[1]
 
     TRAIN_NUM = round(HOLDOUT_RATIO * NUM_SIGNALS)
     TEST_NUM = NUM_SIGNALS - TRAIN_NUM
@@ -37,4 +36,9 @@ if __name__ == '__main__':
     train_set, validation_and_testing = torch.utils.data.random_split(tensor_dataset, [TRAIN_NUM, TEST_NUM + VAL_NUM])
     test_set, validation_set = torch.utils.data.random_split(validation_and_testing, [TEST_NUM, VAL_NUM])
 
-    # TODO napraviti od ovoga krstenu f-ju
+    return train_set, validation_set, test_set
+
+
+if __name__ == '__main__':
+    train_set, validation_set, test_set = get_dataset()
+    print(len(train_set))
