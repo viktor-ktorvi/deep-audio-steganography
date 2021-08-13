@@ -18,12 +18,8 @@ def prepare_messages(messages):
     return np.broadcast_to(messages_reshaped, (NUM_MESSAGES, BOTTLENECK_CHANNEL_SIZE, LEN_MESSAGES))
 
 
-def get_dataset(truncate_percentage=1.0, trucate_dataset=False):
+def get_dataset():
     data = np.load(os.path.join(DATA_PATH, DATASET_NAME, DATA_FILENAME + '.npy'))
-
-    if trucate_dataset:
-        data_len = round(truncate_percentage * data.shape[0])
-        data = data[0:data_len, :]
 
     NUM_SIGNALS = data.shape[0]
 

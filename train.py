@@ -27,8 +27,7 @@ if __name__ == '__main__':
     torch.cuda.manual_seed(1)
 
     # %% Loading the data
-    # TODO Sumnjivo je ovo sa trunc sto nece da radi sa malo manje podataka, a trebalo bi
-    train_set, validation_set, test_set = get_dataset(trucate_dataset=True, truncate_percentage=0.95)
+    train_set, validation_set, test_set = get_dataset()
     train_dataloader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True)
 
     train_std, train_mean = torch.std_mean(train_set.dataset.tensors[0], unbiased=False)
@@ -107,8 +106,6 @@ if __name__ == '__main__':
         test_acc = calc_accuracy(autoencoder, test_dataloader)
         print('\nTest accuracy is {:2.2f} %'.format(100 * test_acc))
 
-    # TODO Save model, save strides because you need them when you create the model for inference!
-
     print('\nSaving data...')
 
     Path(SAVE_MODELS_PATH).mkdir(parents=True, exist_ok=True)
@@ -121,6 +118,8 @@ if __name__ == '__main__':
                os.path.join(MODEL_PATH, MODEL_NAME + MODEL_EXTENSION))
 
     np.save(os.path.join(MODEL_PARAMETERS_PATH, 'strides.npy'), STRIDES)
+
+    # TODO Save some audio samples
 
     print('Done')
 
