@@ -6,7 +6,7 @@ from scipy.io.wavfile import write
 from pathlib import Path
 from tqdm import tqdm
 
-from constants.paths import DATA_FILENAME, MODELS_PATH, TRAIN_DATA_PATH
+from constants.paths import DATA_FILENAME, PRETRAINED_MODELS_PATH, TRAIN_DATA_PATH
 
 DATASET = 'birds'  # one of 'digits', 'speech', 'birds', 'drums', 'piano'
 
@@ -27,10 +27,10 @@ Fs = 16000  # Hz
 if __name__ == "__main__":
     tf.compat.v1.reset_default_graph()
     tf.compat.v1.disable_eager_execution()
-    saver = tf.compat.v1.train.import_meta_graph(os.path.join(MODELS_PATH, DATASET, 'infer.meta'))
+    saver = tf.compat.v1.train.import_meta_graph(os.path.join(PRETRAINED_MODELS_PATH, DATASET, 'infer.meta'))
     graph = tf.compat.v1.get_default_graph()
     sess = tf.compat.v1.InteractiveSession()
-    saver.restore(sess, os.path.join(MODELS_PATH, DATASET, 'model.ckpt'))
+    saver.restore(sess, os.path.join(PRETRAINED_MODELS_PATH, DATASET, 'model.ckpt'))
 
     data = np.zeros((NUM_BATCHES * GENERATE_BATCH_SIZE, OUTPUT_LEN), dtype=np.float32)
     noise = np.zeros((NUM_BATCHES * GENERATE_BATCH_SIZE, INPUT_LEN), dtype=np.float32)
