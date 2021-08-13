@@ -3,19 +3,27 @@ import numpy as np
 from constants.constants import DEVICE
 
 
-def calc_autoencoder_accuracy(model, dataloader):
+def pass_data_through(model, dataloader):
     for i, data in enumerate(dataloader, 0):
-        train_audio, train_messages, train_messages_reshaped = data[0].to(DEVICE, dtype=torch.float), data[1].to(
+        original_audio, original_messages, original_messages_reshaped = data[0].to(DEVICE, dtype=torch.float), data[
+            1].to(
             DEVICE, dtype=torch.float), data[2].to(DEVICE, dtype=torch.float)
 
-        reconstructed_message, _ = model(train_audio.unsqueeze(1), train_messages_reshaped)
+        reconstructed_message, modified_audio = model(original_audio.unsqueeze(1), original_messages_reshaped)
 
-        test_labels_cpu = train_messages.detach().cpu().numpy()
-        outputs_cpu = reconstructed_message.detach().cpu().numpy()
+        original_messages_cpu = original_messages.detach().cpu().numpy()
+        reconstructed_message_cpu = reconstructed_message.detach().cpu().numpy()
+        original_audio_cpu = original_audio.detach().cpu().numpy()
+        modified_audio_cpu = modified_audio.detach().cpu().numpy()
 
-        break
+        return original_messages_cpu, reconstructed_message_cpu, original_audio_cpu, modified_audio_cpu
 
-    return calc_mean_accuracy(outputs_cpu, np.round(test_labels_cpu)), outputs_cpu, test_labels_cpu
+
+def calc_accuracy(model, dataloader):
+    original_messages_cpu, reconstructed_message_cpu, original_audio_cpu, modified_audio_cpu = pass_data_through(model,
+                                                                                                                 dataloader)
+
+    return calc_mean_accuracy(reconstructed_message_cpu, original_messages_cpu)
 
 
 def calc_mean_accuracy(outputs_cpu, test_labels_cpu):

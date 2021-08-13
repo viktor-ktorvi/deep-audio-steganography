@@ -7,20 +7,18 @@ from pathlib import Path
 import os
 
 from data_loading import get_dataset
-from utils.accuracy import calc_autoencoder_accuracy
+from utils.accuracy import pass_data_through, calc_accuracy
 
 from constants.parameters import BATCH_SIZE, LEARNING_RATE, NUM_EPOCHS, MESSAGE_LEN
-from constants.constants import DEVICE
-from constants.paths import SAVE_MODELS_PATH
+from constants.constants import DEVICE, FS
+from constants.paths import SAVE_MODELS_PATH, MODEL_NAME, MODEL_EXTENSION, MODEL_PATH, ORIGINAL_AUDIO_PATH, \
+    STEGANOGRAPHIC_AUDIO_PATH, MODEL_PARAMETERS_PATH
 
 from network_modules.autoencoder import AutoEncoder
 from loss.autoencoder_loss import AutoEncoderLoss
 
 STRIDES = [4, 8, 8]
 VALIDATION_BATCH_SIZE = 100
-MODEL_NAME = str(MESSAGE_LEN) + ' bit'
-ORIGINAL_AUDIO_PATH = 'original'
-STEGANOGRAPHIC_AUDIO_PATH = 'steganographic'
 
 if __name__ == '__main__':
     # %% Seeds
@@ -29,7 +27,7 @@ if __name__ == '__main__':
     torch.cuda.manual_seed(1)
 
     # %% Loading the data
-    train_set, validation_set, test_set = get_dataset(trucate_dataset=False, truncate_percentage=1)
+    train_set, validation_set, test_set = get_dataset(trucate_dataset=False, truncate_percentage=0.9)
     train_dataloader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True)
 
     train_std, train_mean = torch.std_mean(train_set.dataset.tensors[0], unbiased=False)
@@ -44,7 +42,7 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(autoencoder.parameters(), lr=LEARNING_RATE)
 
     # %% Training
-    print("Training started")
+    print("\nTraining started...")
 
     encoder_loss_array = []
     decoder_loss_array = []
@@ -52,7 +50,7 @@ if __name__ == '__main__':
     train_acc_array = []
     val_acc_array = []
 
-    print("{:<20} {:<20} {:<20}".format('Epoch', 'train accuracy', 'validation accuracy'))
+    print("\n{:<20} {:<20} {:<20}".format('Epoch', 'train accuracy', 'validation accuracy'))
 
     for epoch in tqdm(range(NUM_EPOCHS)):
         encoder_running_loss = 0
@@ -83,10 +81,10 @@ if __name__ == '__main__':
             validation_dataloader = DataLoader(validation_set, batch_size=VALIDATION_BATCH_SIZE, shuffle=True)
             train_test_dataloader = DataLoader(train_set, batch_size=VALIDATION_BATCH_SIZE, shuffle=True)
 
-            val_acc, val_estimate, val_labels = calc_autoencoder_accuracy(autoencoder, validation_dataloader)
+            val_acc = calc_accuracy(autoencoder, validation_dataloader)
             val_acc_array.append(val_acc)
 
-            train_acc, train_estimate, train_labels = calc_autoencoder_accuracy(autoencoder, train_test_dataloader)
+            train_acc = calc_accuracy(autoencoder, train_test_dataloader)
             train_acc_array.append(train_acc)
 
         print("\ne: {:<20}ta: {:<20.2f}va: {:<20.2f}".format(epoch, train_acc, val_acc, 2))
@@ -104,8 +102,8 @@ if __name__ == '__main__':
     # %% Test set
     with torch.no_grad():
         test_dataloader = DataLoader(test_set, batch_size=len(test_set), shuffle=True)
-        test_acc, test_estimate, test_labels = calc_autoencoder_accuracy(autoencoder, test_dataloader)
 
+        test_acc = calc_accuracy(autoencoder, test_dataloader)
         print('\nTest accuracy is {:2.2f} %'.format(100 * test_acc))
 
     # TODO Save model, save strides because you need them when you create the model for inference!
@@ -113,6 +111,15 @@ if __name__ == '__main__':
     print('\nSaving data...')
 
     Path(SAVE_MODELS_PATH).mkdir(parents=True, exist_ok=True)
-    Path(os.path.join(SAVE_MODELS_PATH, MODEL_NAME)).mkdir(parents=True, exist_ok=True)
-    Path(os.path.join(SAVE_MODELS_PATH, MODEL_NAME, ORIGINAL_AUDIO_PATH)).mkdir(parents=True, exist_ok=True)
-    Path(os.path.join(SAVE_MODELS_PATH, MODEL_NAME, STEGANOGRAPHIC_AUDIO_PATH)).mkdir(parents=True, exist_ok=True)
+    Path(MODEL_PATH).mkdir(parents=True, exist_ok=True)
+    Path(ORIGINAL_AUDIO_PATH).mkdir(parents=True, exist_ok=True)
+    Path(STEGANOGRAPHIC_AUDIO_PATH).mkdir(parents=True, exist_ok=True)
+    Path(MODEL_PARAMETERS_PATH).mkdir(parents=True, exist_ok=True)
+
+    torch.save(autoencoder.state_dict(),
+               os.path.join(MODEL_PATH, MODEL_NAME + MODEL_EXTENSION))
+
+    np.save(os.path.join(MODEL_PARAMETERS_PATH, 'strides.npy'), STRIDES)
+
+    print('Done')
+
