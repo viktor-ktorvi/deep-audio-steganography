@@ -12,3 +12,6 @@ but _download_wavegan.py_ just runs the same commands from a subrpocess call.
 
 ### Generating data with WaveGAN
 Choose you're _DATASET_ and run _generate_data.py_
+
+### Train your model
+Train your model with the _train.py_ script
