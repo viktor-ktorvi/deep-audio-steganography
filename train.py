@@ -102,6 +102,15 @@ if __name__ == '__main__':
     plt.legend()
     plt.show()
 
+    plt.figure()
+    plt.title("Accuracy")
+    plt.xlabel("epoch [num]")
+    plt.ylabel("accuracy [0..1]")
+    plt.plot(train_acc_array, label='train')
+    plt.plot(val_acc_array, label='validation')
+    plt.legend()
+    plt.show()
+
     # %% Test set
     with torch.no_grad():
         test_dataloader = DataLoader(test_set, batch_size=len(test_set), shuffle=True)
