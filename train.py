@@ -3,18 +3,24 @@ from torch.utils.data import DataLoader
 import numpy as np
 from tqdm import tqdm
 from matplotlib import pyplot as plt
+from pathlib import Path
+import os
 
 from data_loading import get_dataset
 from utils.accuracy import calc_autoencoder_accuracy
 
-from constants.parameters import BATCH_SIZE, LEARNING_RATE, NUM_EPOCHS
+from constants.parameters import BATCH_SIZE, LEARNING_RATE, NUM_EPOCHS, MESSAGE_LEN
 from constants.constants import DEVICE
+from constants.paths import SAVE_MODELS_PATH
 
 from network_modules.autoencoder import AutoEncoder
 from loss.autoencoder_loss import AutoEncoderLoss
 
 STRIDES = [4, 8, 8]
 VALIDATION_BATCH_SIZE = 100
+MODEL_NAME = str(MESSAGE_LEN) + ' bit'
+ORIGINAL_AUDIO_PATH = 'original'
+STEGANOGRAPHIC_AUDIO_PATH = 'steganographic'
 
 if __name__ == '__main__':
     # %% Seeds
@@ -103,3 +109,10 @@ if __name__ == '__main__':
         print('\nTest accuracy is {:2.2f} %'.format(100 * test_acc))
 
     # TODO Save model, save strides because you need them when you create the model for inference!
+
+    print('\nSaving data...')
+
+    Path(SAVE_MODELS_PATH).mkdir(parents=True, exist_ok=True)
+    Path(os.path.join(SAVE_MODELS_PATH, MODEL_NAME)).mkdir(parents=True, exist_ok=True)
+    Path(os.path.join(SAVE_MODELS_PATH, MODEL_NAME, ORIGINAL_AUDIO_PATH)).mkdir(parents=True, exist_ok=True)
+    Path(os.path.join(SAVE_MODELS_PATH, MODEL_NAME, STEGANOGRAPHIC_AUDIO_PATH)).mkdir(parents=True, exist_ok=True)
