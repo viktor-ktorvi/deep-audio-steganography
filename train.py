@@ -5,6 +5,8 @@ from tqdm import tqdm
 from matplotlib import pyplot as plt
 from pathlib import Path
 import os
+from scipy.io.wavfile import write
+
 
 from data_loading import get_dataset
 from utils.accuracy import pass_data_through, calc_accuracy
@@ -19,6 +21,7 @@ from loss.autoencoder_loss import AutoEncoderLoss
 
 STRIDES = [4, 8, 8]
 VALIDATION_BATCH_SIZE = 100
+WAV_SAVING_NUM = 30
 
 if __name__ == '__main__':
     # %% Seeds
@@ -120,6 +123,17 @@ if __name__ == '__main__':
     np.save(os.path.join(MODEL_PARAMETERS_PATH, 'strides.npy'), STRIDES)
 
     # TODO Save some audio samples
+
+    with torch.no_grad():
+        wav_saving_dataloader = DataLoader(test_set, batch_size=WAV_SAVING_NUM, shuffle=True)
+        _, _, original_audio, modified_audio = pass_data_through(autoencoder, wav_saving_dataloader)
+
+        original_audio = original_audio.squeeze()
+        modified_audio = modified_audio.squeeze()
+
+    for i in range(WAV_SAVING_NUM):
+        write(os.path.join(ORIGINAL_AUDIO_PATH, 'sample' + str(i) + '.wav'), FS, original_audio[i, :])
+        write(os.path.join(STEGANOGRAPHIC_AUDIO_PATH, 'sample' + str(i) + '.wav'), FS, modified_audio[i, :])
 
     print('Done')
 
