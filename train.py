@@ -10,7 +10,7 @@ from scipy.io.wavfile import write
 from data_loading import get_dataset
 from utils.accuracy import pass_data_through, calc_accuracy
 
-from constants.parameters import BATCH_SIZE, LEARNING_RATE, NUM_EPOCHS, MESSAGE_LEN
+from constants.parameters import BATCH_SIZE, LEARNING_RATE, NUM_EPOCHS, save_parameters
 from constants.constants import DEVICE, FS
 from constants.paths import SAVE_MODELS_PATH, MODEL_NAME, MODEL_EXTENSION, MODEL_PATH, ORIGINAL_AUDIO_PATH, \
     STEGANOGRAPHIC_AUDIO_PATH, MODEL_PARAMETERS_PATH
@@ -120,6 +120,8 @@ if __name__ == '__main__':
     torch.save(autoencoder.state_dict(),
                os.path.join(MODEL_PATH, MODEL_NAME + MODEL_EXTENSION))
 
+    save_parameters(MODEL_PARAMETERS_PATH)
+
     np.save(os.path.join(MODEL_PARAMETERS_PATH, 'strides.npy'), STRIDES)
 
     with torch.no_grad():
@@ -132,7 +134,5 @@ if __name__ == '__main__':
     for i in range(WAV_SAVING_NUM):
         write(os.path.join(ORIGINAL_AUDIO_PATH, 'sample' + str(i) + '.wav'), FS, original_audio[i, :])
         write(os.path.join(STEGANOGRAPHIC_AUDIO_PATH, 'sample' + str(i) + '.wav'), FS, modified_audio[i, :])
-
-    # TODO Save training parameters as JSON
 
     print('Done')
