@@ -27,7 +27,8 @@ if __name__ == '__main__':
     torch.cuda.manual_seed(1)
 
     # %% Loading the data
-    train_set, validation_set, test_set = get_dataset(trucate_dataset=False, truncate_percentage=0.9)
+    # TODO Sumnjivo je ovo sa trunc sto nece da radi sa malo manje podataka, a trebalo bi
+    train_set, validation_set, test_set = get_dataset(trucate_dataset=True, truncate_percentage=0.95)
     train_dataloader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True)
 
     train_std, train_mean = torch.std_mean(train_set.dataset.tensors[0], unbiased=False)
