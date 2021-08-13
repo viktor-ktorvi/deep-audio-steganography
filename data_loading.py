@@ -18,8 +18,16 @@ def prepare_messages(messages):
     return np.broadcast_to(messages_reshaped, (NUM_MESSAGES, BOTTLENECK_CHANNEL_SIZE, LEN_MESSAGES))
 
 
-def get_dataset():
+def get_dataset(normalize=False):
     data = np.load(os.path.join(DATA_PATH, DATASET_NAME, DATA_FILENAME + '.npy'))
+
+    data_std = None
+    data_mean = None
+    if normalize:
+        data_std = np.std(data)
+        data_mean = np.mean(data)
+
+        data = (data - data_mean) / data_std
 
     NUM_SIGNALS = data.shape[0]
 
@@ -36,9 +44,9 @@ def get_dataset():
     train_set, validation_and_testing = torch.utils.data.random_split(tensor_dataset, [TRAIN_NUM, TEST_NUM + VAL_NUM])
     test_set, validation_set = torch.utils.data.random_split(validation_and_testing, [TEST_NUM, VAL_NUM])
 
-    return train_set, validation_set, test_set
+    return train_set, validation_set, test_set, data_mean, data_std
 
 
 if __name__ == '__main__':
-    train_set, validation_set, test_set = get_dataset()
+    train_set, validation_set, test_set, data_mean, data_std = get_dataset()
     print(len(train_set))

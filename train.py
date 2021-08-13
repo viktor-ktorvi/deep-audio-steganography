@@ -7,7 +7,6 @@ from pathlib import Path
 import os
 from scipy.io.wavfile import write
 
-
 from data_loading import get_dataset
 from utils.accuracy import pass_data_through, calc_accuracy
 
@@ -30,7 +29,8 @@ if __name__ == '__main__':
     torch.cuda.manual_seed(1)
 
     # %% Loading the data
-    train_set, validation_set, test_set = get_dataset()
+    # TODO normalizing seems to make it worse, why? See what people who work with timeseries' do.
+    train_set, validation_set, test_set, data_mean, data_std = get_dataset(normalize=False)
     train_dataloader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True)
 
     train_std, train_mean = torch.std_mean(train_set.dataset.tensors[0], unbiased=False)
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     train_acc_array = []
     val_acc_array = []
 
-    print("\n{:<20} {:<20} {:<20}".format('Epoch', 'train accuracy', 'validation accuracy'))
+    print("\n{:<20} {:<20} {:<20} {:<20}".format('Epoch', 'train accuracy', 'validation accuracy', 'encoder loss'))
 
     for epoch in tqdm(range(NUM_EPOCHS)):
         encoder_running_loss = 0
@@ -90,7 +90,7 @@ if __name__ == '__main__':
             train_acc = calc_accuracy(autoencoder, train_test_dataloader)
             train_acc_array.append(train_acc)
 
-        print("\ne: {:<20}ta: {:<20.2f}va: {:<20.2f}".format(epoch, train_acc, val_acc, 2))
+        print("\ne: {:<20}ta: {:<20.2f}va: {:<20.2f} {:<20.3f}".format(epoch, train_acc, val_acc, encoder_running_loss))
 
     # %% Plot
     plt.figure()
@@ -122,8 +122,6 @@ if __name__ == '__main__':
 
     np.save(os.path.join(MODEL_PARAMETERS_PATH, 'strides.npy'), STRIDES)
 
-    # TODO Save some audio samples
-
     with torch.no_grad():
         wav_saving_dataloader = DataLoader(test_set, batch_size=WAV_SAVING_NUM, shuffle=True)
         _, _, original_audio, modified_audio = pass_data_through(autoencoder, wav_saving_dataloader)
@@ -135,5 +133,6 @@ if __name__ == '__main__':
         write(os.path.join(ORIGINAL_AUDIO_PATH, 'sample' + str(i) + '.wav'), FS, original_audio[i, :])
         write(os.path.join(STEGANOGRAPHIC_AUDIO_PATH, 'sample' + str(i) + '.wav'), FS, modified_audio[i, :])
 
-    print('Done')
+    # TODO Save training parameters as JSON
 
+    print('Done')
