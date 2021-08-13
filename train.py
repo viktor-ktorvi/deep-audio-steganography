@@ -94,3 +94,12 @@ if __name__ == '__main__':
     plt.plot(decoder_loss_array / np.max(decoder_loss_array), label='decoder')
     plt.legend()
     plt.show()
+
+    # %% Test set
+    with torch.no_grad():
+        test_dataloader = DataLoader(test_set, batch_size=len(test_set), shuffle=True)
+        test_acc, test_estimate, test_labels = calc_autoencoder_accuracy(autoencoder, test_dataloader)
+
+        print('\nTest accuracy is {:2.2f} %'.format(100 * test_acc))
+
+    # TODO Save model, save strides because you need them when you create the model for inference!
