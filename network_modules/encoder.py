@@ -5,7 +5,7 @@ import numpy as np
 from data_loading import prepare_messages
 from utils.sizes import Conv1DLayerSizes, TransposeConv1DLayerSizes
 from constants.constants import CHANNELS, KERNELS, SIGNAL_LEN, DEVICE
-from constants.parameters import MESSAGE_LEN, BOTTLENECK_CHANNEL_SIZE, STRIDES
+from constants.parameters import MESSAGE_LEN, BOTTLENECK_CHANNEL_SIZE
 
 
 class Encoder(nn.Module):
@@ -91,7 +91,7 @@ class Encoder(nn.Module):
 
 
 if __name__ == '__main__':
-    encoder = Encoder(strides=STRIDES).to(DEVICE)
+    encoder = Encoder(strides=[4, 8, 8]).to(DEVICE)
     print(encoder)
 
     batch_size = 17

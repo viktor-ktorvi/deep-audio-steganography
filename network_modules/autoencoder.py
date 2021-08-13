@@ -7,7 +7,7 @@ from network_modules.decoder import Decoder
 
 from data_loading import prepare_messages
 from constants.constants import CHANNELS, KERNELS, SIGNAL_LEN, DEVICE
-from constants.parameters import MESSAGE_LEN, BOTTLENECK_CHANNEL_SIZE, STRIDES
+from constants.parameters import MESSAGE_LEN, BOTTLENECK_CHANNEL_SIZE
 
 
 class AutoEncoder(nn.Module):
@@ -25,7 +25,7 @@ class AutoEncoder(nn.Module):
 
 
 if __name__ == '__main__':
-    autoencoder = AutoEncoder(strides=STRIDES).to(DEVICE)
+    autoencoder = AutoEncoder(strides=[4, 8, 8]).to(DEVICE)
     print(autoencoder)
 
     batch_size = 17

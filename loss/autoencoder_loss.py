@@ -13,4 +13,4 @@ class AutoEncoderLoss(nn.Module):
         encoder_loss = self.encoder_criterion(modified_audio, original_audio)
         decoder_loss = self.decoder_criterion(reconstructed_message, original_message)
 
-        return encoder_loss + decoder_loss
+        return encoder_loss + decoder_loss, encoder_loss, decoder_loss
