@@ -17,7 +17,7 @@ def reshape_messages(messages):
     messages_reshaped = messages.reshape(NUM_MESSAGES, 1, LEN_MESSAGES)
     return np.broadcast_to(messages_reshaped, (NUM_MESSAGES, BOTTLENECK_CHANNEL_SIZE, LEN_MESSAGES))
 
-
+# TODO HIGH really should be a local variable
 
 def scale_messages(messages):
     return messages / HIGH - (HIGH - 1) / 2 / HIGH
