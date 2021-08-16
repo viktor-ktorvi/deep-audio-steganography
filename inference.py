@@ -53,3 +53,4 @@ if __name__ == '__main__':
     # TODO  save the stego next to the original and name it after the model,
     #  see if everything is ok
     #  do some tests as in SNR, spectrograms, noise and quantization seristance
+    #  test idea: shift signal by n samples cyclicly and see if it recnostructs the message correctly
