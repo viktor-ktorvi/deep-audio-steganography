@@ -11,23 +11,24 @@ DATA_PATH = TRAIN_DATA_PATH
 DATASET_NAME = 'birds'
 
 
-def reshape_messages(messages):
+def reshape_messages(messages, bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE):
     NUM_MESSAGES = messages.shape[0]
     LEN_MESSAGES = messages.shape[1]
     messages_reshaped = messages.reshape(NUM_MESSAGES, 1, LEN_MESSAGES)
-    return np.broadcast_to(messages_reshaped, (NUM_MESSAGES, BOTTLENECK_CHANNEL_SIZE, LEN_MESSAGES))
+    return np.broadcast_to(messages_reshaped, (NUM_MESSAGES, bottleneck_channel_size, LEN_MESSAGES))
+
 
 # TODO HIGH really should be a local variable
 
-def scale_messages(messages):
-    return messages / HIGH - (HIGH - 1) / 2 / HIGH
+def scale_messages(messages, high=HIGH):
+    return messages / high - (high - 1) / 2 / high
 
 
-def inverse_scale_messages(messages):
-    return (messages + (HIGH - 1) / 2 / HIGH) * HIGH
+def inverse_scale_messages(messages, high=HIGH):
+    return (messages + (high - 1) / 2 / high) * high
 
 
-def get_dataset(normalize=False):
+def get_dataset(high=HIGH, normalize=False, bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE):
     data = np.load(os.path.join(DATA_PATH, DATASET_NAME, DATA_FILENAME + '.npy'))
 
     data_std = None
@@ -45,9 +46,9 @@ def get_dataset(normalize=False):
     VAL_NUM = round(TEST_NUM / 2)
     TEST_NUM -= VAL_NUM
 
-    messages = np.random.randint(low=0, high=HIGH, size=(NUM_SIGNALS, MESSAGE_LEN))
-    messages = scale_messages(messages)
-    messages_reshaped = reshape_messages(messages)
+    messages = np.random.randint(low=0, high=high, size=(NUM_SIGNALS, MESSAGE_LEN))
+    messages = scale_messages(messages, high=high)
+    messages_reshaped = reshape_messages(messages, bottleneck_channel_size=bottleneck_channel_size)
 
     tensor_dataset = TensorDataset(torch.tensor(data), torch.tensor(messages), torch.tensor(messages_reshaped))
 

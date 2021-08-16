@@ -10,7 +10,7 @@ from scipy.io.wavfile import write
 from data_loading import get_dataset
 from utils.accuracy import pass_data_through, calc_accuracy
 
-from constants.parameters import BATCH_SIZE, LEARNING_RATE, NUM_EPOCHS, save_parameters, BOTTLENECK_CHANNEL_SIZE
+from constants.parameters import BATCH_SIZE, LEARNING_RATE, NUM_EPOCHS, save_parameters, BOTTLENECK_CHANNEL_SIZE, HIGH
 from constants.constants import DEVICE, FS
 from constants.paths import SAVE_MODELS_PATH, MODEL_NAME, MODEL_EXTENSION, MODEL_PATH, ORIGINAL_AUDIO_PATH, \
     STEGANOGRAPHIC_AUDIO_PATH, MODEL_PARAMETERS_PATH
@@ -30,7 +30,8 @@ if __name__ == '__main__':
 
     # %% Loading the data
     # TODO normalizing seems to make it worse, why? See what people who work with timeseries' do.
-    train_set, validation_set, test_set, data_mean, data_std = get_dataset(normalize=False)
+    train_set, validation_set, test_set, data_mean, data_std = get_dataset(normalize=False, high=HIGH,
+                                                                           bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE)
     train_dataloader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True)
 
     train_std, train_mean = torch.std_mean(train_set.dataset.tensors[0], unbiased=False)
@@ -84,10 +85,10 @@ if __name__ == '__main__':
             validation_dataloader = DataLoader(validation_set, batch_size=VALIDATION_BATCH_SIZE, shuffle=True)
             train_test_dataloader = DataLoader(train_set, batch_size=VALIDATION_BATCH_SIZE, shuffle=True)
 
-            val_acc = calc_accuracy(autoencoder, validation_dataloader)
+            val_acc = calc_accuracy(autoencoder, validation_dataloader, high=HIGH)
             val_acc_array.append(val_acc)
 
-            train_acc = calc_accuracy(autoencoder, train_test_dataloader)
+            train_acc = calc_accuracy(autoencoder, train_test_dataloader, high=HIGH)
             train_acc_array.append(train_acc)
 
         print("\ne: {:<20}ta: {:<20.2f}va: {:<20.2f} {:<20.3f}".format(epoch, train_acc, val_acc, encoder_running_loss))

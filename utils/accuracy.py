@@ -19,20 +19,20 @@ def pass_data_through(model, dataloader):
         return original_messages_cpu, reconstructed_message_cpu, original_audio_cpu, modified_audio_cpu
 
 
-def calc_accuracy(model, dataloader):
+def calc_accuracy(model, dataloader, high):
     original_messages_cpu, reconstructed_message_cpu, original_audio_cpu, modified_audio_cpu = pass_data_through(model,
                                                                                                                  dataloader)
 
-    return calc_mean_accuracy(reconstructed_message_cpu, original_messages_cpu)
+    return calc_mean_accuracy(reconstructed_message_cpu, original_messages_cpu, high=high)
 
 
-def calc_mean_accuracy(outputs_cpu, test_labels_cpu):
+def calc_mean_accuracy(outputs_cpu, test_labels_cpu, high):
 
     accuracies = []
 
-    outputs_cpu = inverse_scale_messages(outputs_cpu)
+    outputs_cpu = inverse_scale_messages(outputs_cpu, high=high)
 
-    test_labels_cpu = inverse_scale_messages(test_labels_cpu)
+    test_labels_cpu = inverse_scale_messages(test_labels_cpu, high=high)
 
     for idx in range(outputs_cpu.shape[0]):
         prediction = [test_labels_cpu[idx, i] == round(outputs_cpu[idx, i]) for i in range(outputs_cpu.shape[1])]
