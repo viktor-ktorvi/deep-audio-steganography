@@ -10,7 +10,7 @@ from scipy.io.wavfile import write
 from data_loading import get_dataset
 from utils.accuracy import pass_data_through, calc_accuracy
 
-from constants.parameters import BATCH_SIZE, LEARNING_RATE, NUM_EPOCHS, save_parameters
+from constants.parameters import BATCH_SIZE, LEARNING_RATE, NUM_EPOCHS, save_parameters, BOTTLENECK_CHANNEL_SIZE
 from constants.constants import DEVICE, FS
 from constants.paths import SAVE_MODELS_PATH, MODEL_NAME, MODEL_EXTENSION, MODEL_PATH, ORIGINAL_AUDIO_PATH, \
     STEGANOGRAPHIC_AUDIO_PATH, MODEL_PARAMETERS_PATH
@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     # %% Model and optimizer
 
-    autoencoder = AutoEncoder(strides=STRIDES).to(DEVICE)
+    autoencoder = AutoEncoder(strides=STRIDES, bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE).to(DEVICE)
 
     criterion = AutoEncoderLoss()
 
@@ -145,3 +145,5 @@ if __name__ == '__main__':
         write(os.path.join(STEGANOGRAPHIC_AUDIO_PATH, 'sample' + str(i) + '.wav'), FS, modified_audio[i, :])
 
     print('Done')
+
+    # TODO Save some results like accuracy maybe, in a csv file

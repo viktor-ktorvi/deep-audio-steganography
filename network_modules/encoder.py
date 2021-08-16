@@ -5,15 +5,15 @@ import numpy as np
 from data_loading import reshape_messages
 from utils.sizes import Conv1DLayerSizes, TransposeConv1DLayerSizes
 from constants.constants import CHANNELS, KERNELS, SIGNAL_LEN, DEVICE
-from constants.parameters import MESSAGE_LEN, BOTTLENECK_CHANNEL_SIZE
+from constants.parameters import MESSAGE_LEN
 
 
 class Encoder(nn.Module):
-    def __init__(self, strides):
+    def __init__(self, strides, bottleneck_channel_size):
         super(Encoder, self).__init__()
 
         kernel_sizes = [KERNELS['large'], KERNELS['medium'], KERNELS['small']]
-        out_channels = [CHANNELS['small'], CHANNELS['medium'], BOTTLENECK_CHANNEL_SIZE]
+        out_channels = [CHANNELS['small'], CHANNELS['medium'], bottleneck_channel_size]
 
         n = len(out_channels)
 
