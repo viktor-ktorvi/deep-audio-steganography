@@ -6,6 +6,8 @@ HOLDOUT_RATIO = 0.8
 SIGNAL_LEN = 16384  # samples
 FS = 16000  # Hz
 
+# TODO These really should be fields in the model because of loading the model for inference.
+#  if I just never change them it's ok, but if I wanna start changing them then it's a hassle...
 CHANNELS = {
     "large": 25,
     "medium": 15,
