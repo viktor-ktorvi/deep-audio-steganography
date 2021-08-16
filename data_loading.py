@@ -28,16 +28,8 @@ def inverse_scale_messages(messages, high=HIGH):
     return (messages + (high - 1) / 2 / high) * high
 
 
-def get_dataset(high=HIGH, normalize=False, bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE):
+def get_dataset(high=HIGH, bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE):
     data = np.load(os.path.join(DATA_PATH, DATASET_NAME, DATA_FILENAME + '.npy'))
-
-    data_std = None
-    data_mean = None
-    if normalize:
-        data_std = np.std(data)
-        data_mean = np.mean(data)
-
-        data = (data - data_mean) / data_std
 
     NUM_SIGNALS = data.shape[0]
 
@@ -55,7 +47,25 @@ def get_dataset(high=HIGH, normalize=False, bottleneck_channel_size=BOTTLENECK_C
     train_set, validation_and_testing = torch.utils.data.random_split(tensor_dataset, [TRAIN_NUM, TEST_NUM + VAL_NUM])
     test_set, validation_set = torch.utils.data.random_split(validation_and_testing, [TEST_NUM, VAL_NUM])
 
-    return train_set, validation_set, test_set, data_mean, data_std
+    return train_set, validation_set, test_set
+
+
+def get_inference_data(data_path, num_signals=None, high=HIGH,
+                       bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE):
+    data = np.load(os.path.join(data_path, DATA_FILENAME + '.npy'))
+
+    if num_signals is None:
+        NUM_SIGNALS = data.shape[0]
+    else:
+        NUM_SIGNALS = num_signals
+
+    messages = np.random.randint(low=0, high=high, size=(NUM_SIGNALS, MESSAGE_LEN))
+    messages = scale_messages(messages, high=high)
+    messages_reshaped = reshape_messages(messages, bottleneck_channel_size=bottleneck_channel_size)
+
+    tensor_dataset = TensorDataset(torch.tensor(data), torch.tensor(messages), torch.tensor(messages_reshaped))
+
+    return tensor_dataset
 
 
 if __name__ == '__main__':

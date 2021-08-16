@@ -30,8 +30,7 @@ if __name__ == '__main__':
 
     # %% Loading the data
     # TODO normalizing seems to make it worse, why? See what people who work with timeseries' do.
-    train_set, validation_set, test_set, data_mean, data_std = get_dataset(normalize=False, high=HIGH,
-                                                                           bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE)
+    train_set, validation_set, test_set = get_dataset(high=HIGH, bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE)
     train_dataloader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True)
 
     train_std, train_mean = torch.std_mean(train_set.dataset.tensors[0], unbiased=False)
@@ -116,7 +115,7 @@ if __name__ == '__main__':
     with torch.no_grad():
         test_dataloader = DataLoader(test_set, batch_size=len(test_set), shuffle=True)
 
-        test_acc = calc_accuracy(autoencoder, test_dataloader)
+        test_acc = calc_accuracy(autoencoder, test_dataloader, high=HIGH)
         print('\nTest accuracy is {:2.2f} %'.format(100 * test_acc))
 
     print('\nSaving data...')
