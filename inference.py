@@ -6,6 +6,7 @@ import torch
 from scipy.io.wavfile import write
 from pathlib import Path
 from torch.utils.data import DataLoader
+from matplotlib import pyplot as plt
 
 from network_modules.autoencoder import AutoEncoder
 from data_loading import get_inference_data
@@ -49,7 +50,8 @@ if __name__ == '__main__':
                               bottleneck_channel_size=training_parameters['BOTTLENECK_CHANNEL_SIZE'])
 
     dataloader = DataLoader(data, batch_size=len(data), shuffle=True)
-    original_messages, reconstructed_messages, original_audio, modified_audio = pass_data_through(model, dataloader)
+    with torch.no_grad():
+        original_messages, reconstructed_messages, original_audio, modified_audio = pass_data_through(model, dataloader)
     modified_audio = modified_audio.squeeze()
 
     # %% Accuracy
@@ -76,8 +78,52 @@ if __name__ == '__main__':
         write(os.path.join(STEG_PATH, DATASET + str(idx) + '.wav'), FS, modified_audio[idx, :])
 
     print('Done')
-    # TODO  save the stego next to the original and name it after the model,
-    #  see if everything is ok
-    #  do some tests as in SNR, spectrograms, noise and quantization seristance
+
+    # %% SNR
+    power_original = np.sum(original_audio ** 2, axis=1) / original_audio.shape[1]
+
+    mse = np.sum((original_audio - modified_audio) ** 2, axis=1) / original_audio.shape[1]
+
+    snr = 10 * np.log10(power_original / mse)
+    mean_snr = np.mean(snr)
+    median_snr = np.median(snr)
+
+    plt.figure()
+    plt.hist(x=snr, bins=30, label='histogram')
+    plt.axvline(x=mean_snr, color='lime', label='mean')
+    plt.axvline(x=median_snr, color='orange', label='median')
+    plt.title('Histogram SNR')
+    plt.xlabel('SNR [dB]')
+    plt.legend()
+
+    # %% PSNR
+
+    # TODO Not sure if I'm doing this right
+
+    min_original = np.amin(original_audio)
+    min_modified = np.amin(modified_audio)
+
+    max_original = np.amax(original_audio - min_original)
+    max_modified = np.amax(modified_audio - min_modified)
+    max_val = np.max([max_modified, max_original])
+
+    pmse = np.sum((original_audio - min_original - modified_audio + min_modified) ** 2, axis=1) / original_audio.shape[
+        1]
+
+    psnr = 10 * np.log10(max_val ** 2 / pmse)
+    mean_psnr = np.mean(psnr)
+    median_psnr = np.median(psnr)
+
+    plt.figure()
+    plt.hist(x=psnr, bins=30, label='histogram')
+    plt.axvline(x=mean_psnr, color='lime', label='mean')
+    plt.axvline(x=median_psnr, color='orange', label='median')
+    plt.title('Histogram PSNR')
+    plt.xlabel('PSNR [dB]')
+    plt.legend()
+
+    # TODO SNR and PSNR, to find peak do MAX of original and stego
+    # TODO do some tests as in SNR, spectrograms, noise and quantization seristance
     #  histogrm of SNR because some are really good, some are trash (maybe train on more data)
+    #  find the trash SNR examples and listen to them
     #  test idea: shift signal by n samples cyclicly and see if it recnostructs the message correctly
