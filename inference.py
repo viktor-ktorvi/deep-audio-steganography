@@ -1,22 +1,28 @@
 import os
+import glob
 import json
 import numpy as np
 import torch
-
+from scipy.io.wavfile import write
+from pathlib import Path
 from torch.utils.data import DataLoader
 
 from network_modules.autoencoder import AutoEncoder
 from data_loading import get_inference_data
 from utils.accuracy import pass_data_through, calc_mean_accuracy
+from utils.delete_all_files_in_folder import delete_all_files_in_folder
 
-from constants.paths import SAVE_MODELS_PATH, MODEL_PARAMETERS_FOLDER, INFERENCE_DATA_FOLDER
+from constants.paths import SAVE_MODELS_PATH, MODEL_PARAMETERS_FOLDER, INFERENCE_DATA_FOLDER, INFERENCE_RESULTS_FOLDER, \
+    STEGANOGRAPHIC_AUDIO_FOLDER, ORIGINAL_AUDIO_FOLDER
 from constants.parameters import TRAINING_PARAMETERS_JSON
-from constants.constants import DEVICE
+from constants.constants import DEVICE, FS
 
 MODEL_TO_LOAD = '64 x 1.0 bit'
 MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
 DATASET = 'birds'
+
+RANDOM_SUBSET_NUM = 20
 
 if __name__ == '__main__':
     # %% Loading parameters and the model
@@ -50,7 +56,28 @@ if __name__ == '__main__':
     test_acc = calc_mean_accuracy(reconstructed_messages, original_messages, high=training_parameters['HIGH'])
 
     print("Test accuracy is {:3.2f} %".format(test_acc * 100))
+
+    # %% Saving some examples
+    STEG_PATH = os.path.join(INFERENCE_RESULTS_FOLDER, STEGANOGRAPHIC_AUDIO_FOLDER)
+    ORIGINAL_PATH = os.path.join(INFERENCE_RESULTS_FOLDER, ORIGINAL_AUDIO_FOLDER)
+
+    Path(INFERENCE_RESULTS_FOLDER).mkdir(parents=True, exist_ok=True)
+    Path(STEG_PATH).mkdir(parents=True, exist_ok=True)
+    Path(ORIGINAL_PATH).mkdir(parents=True, exist_ok=True)
+
+    delete_all_files_in_folder(STEG_PATH)
+    delete_all_files_in_folder(ORIGINAL_PATH)
+
+    random_subset_indicies = np.random.randint(low=0, high=len(data), size=RANDOM_SUBSET_NUM)
+
+    print('Saving results...')
+    for idx in random_subset_indicies:
+        write(os.path.join(ORIGINAL_PATH, DATASET + str(idx) + '.wav'), FS, original_audio[idx, :])
+        write(os.path.join(STEG_PATH, DATASET + str(idx) + '.wav'), FS, modified_audio[idx, :])
+
+    print('Done')
     # TODO  save the stego next to the original and name it after the model,
     #  see if everything is ok
     #  do some tests as in SNR, spectrograms, noise and quantization seristance
+    #  histogrm of SNR because some are really good, some are trash (maybe train on more data)
     #  test idea: shift signal by n samples cyclicly and see if it recnostructs the message correctly

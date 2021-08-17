@@ -6,6 +6,7 @@ DATA_FILENAME = 'audio_data'
 PRETRAINED_MODELS_PATH = 'waveGAN_models'
 TRAIN_DATA_PATH = 'data'
 INFERENCE_DATA_FOLDER = 'inference data'
+INFERENCE_RESULTS_FOLDER = 'inference results'
 
 SAVE_MODELS_PATH = 'saved models'
 MODEL_FOLDER_NAME = str(MESSAGE_LEN) + ' x ' + str(np.log2(HIGH)) + ' bit'
