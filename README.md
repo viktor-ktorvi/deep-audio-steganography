@@ -2,6 +2,21 @@
 
 ## Quick start
 
+### Requirements
+
+Lots of them. 
+* Firstly, to download the WaveGAN generator model you should be on Windows because I call PowerShell 
+commands, but you can easily work around this if you're on Linux by either writing a shell script or downloading the
+models manually and  putting them in the _waveGAN_models_ folder.
+
+* Secondly, install Tensorflow. I think any version above 2.0 should work but I installed 2.5. To install TF along with 
+cuda and cuDNN follow this [tutorial](https://www.youtube.com/watch?v=hHWkvEcDBO0) (fantastic channel). TF is only
+used to initially generate data.
+
+* Thirdly, install PyTorch. I installed the version that was relevant as of august 2021.
+
+* Finally, install everything else. I really should make "requirements.txt" file. All the other libraries are standard.
+
 ### Download the WaveGAN models
 Download the pretrained WaveGAN Generator as a .ckpt file by running _download_wavegan.py_ but before that, make sure you are on 
 Windows and that you have running PowerShell commands enabled. 
