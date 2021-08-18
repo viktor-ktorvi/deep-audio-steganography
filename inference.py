@@ -121,6 +121,9 @@ if __name__ == '__main__':
     Path(ORIGINAL_BEST_EXAMPLES_PATH).mkdir(parents=True, exist_ok=True)
     Path(STEG_BEST_EXAMPLES_PATH).mkdir(parents=True, exist_ok=True)
 
+    # TODO Posto su losi oni cija je snaga originalno nikakva mozda treba predprocesirati podatke u treningu
+    #  da se takvi odstrane, ili mozda da se razvuku tako da svi budu izmedju -1 i 1
+
     for idx in worst_snr_indices:
         write(os.path.join(ORIGINAL_WORST_EXAMPLES_PATH, DATASET + str(idx) + '.wav'), FS, original_audio[idx, :])
         write(os.path.join(STEG_WORST_EXAMPLES_PATH, DATASET + str(idx) + '.wav'), FS, modified_audio[idx, :])
