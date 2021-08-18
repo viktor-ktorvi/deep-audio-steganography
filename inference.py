@@ -1,5 +1,4 @@
 import os
-import glob
 import json
 import numpy as np
 import torch
@@ -23,7 +22,15 @@ MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
 DATASET = 'birds'
 
+RANDOM_RESULTS_FOLDER = 'random examples'
+WORST_SNR_FOLDER = 'worst snr examples'
+BEST_SNR_EXAMPLES = 'best snr examples'
+
 RANDOM_SUBSET_NUM = 20
+NUM_BINS = 30
+
+NUM_WORST = 10
+NUM_BEST = 10
 
 if __name__ == '__main__':
     # %% Loading parameters and the model
@@ -61,21 +68,24 @@ if __name__ == '__main__':
 
     # %% Saving some examples
     STEG_PATH = os.path.join(INFERENCE_RESULTS_FOLDER, STEGANOGRAPHIC_AUDIO_FOLDER)
+    STEG_RANDOM_PATH = os.path.join(STEG_PATH, RANDOM_RESULTS_FOLDER)
+
     ORIGINAL_PATH = os.path.join(INFERENCE_RESULTS_FOLDER, ORIGINAL_AUDIO_FOLDER)
+    ORIGINAL_RANDOM_PATH = os.path.join(ORIGINAL_PATH, RANDOM_RESULTS_FOLDER)
 
     Path(INFERENCE_RESULTS_FOLDER).mkdir(parents=True, exist_ok=True)
-    Path(STEG_PATH).mkdir(parents=True, exist_ok=True)
-    Path(ORIGINAL_PATH).mkdir(parents=True, exist_ok=True)
+    Path(STEG_RANDOM_PATH).mkdir(parents=True, exist_ok=True)
+    Path(ORIGINAL_RANDOM_PATH).mkdir(parents=True, exist_ok=True)
 
-    delete_all_files_in_folder(STEG_PATH)
-    delete_all_files_in_folder(ORIGINAL_PATH)
+    delete_all_files_in_folder(STEG_RANDOM_PATH)
+    delete_all_files_in_folder(ORIGINAL_RANDOM_PATH)
 
-    random_subset_indicies = np.random.randint(low=0, high=len(data), size=RANDOM_SUBSET_NUM)
+    random_subset_indices = np.random.randint(low=0, high=len(data), size=RANDOM_SUBSET_NUM)
 
     print('Saving results...')
-    for idx in random_subset_indicies:
-        write(os.path.join(ORIGINAL_PATH, DATASET + str(idx) + '.wav'), FS, original_audio[idx, :])
-        write(os.path.join(STEG_PATH, DATASET + str(idx) + '.wav'), FS, modified_audio[idx, :])
+    for idx in random_subset_indices:
+        write(os.path.join(ORIGINAL_RANDOM_PATH, DATASET + str(idx) + '.wav'), FS, original_audio[idx, :])
+        write(os.path.join(STEG_RANDOM_PATH, DATASET + str(idx) + '.wav'), FS, modified_audio[idx, :])
 
     print('Done')
 
@@ -89,38 +99,61 @@ if __name__ == '__main__':
     median_snr = np.median(snr)
 
     plt.figure()
-    plt.hist(x=snr, bins=30, label='histogram')
+    plt.hist(x=snr, bins=NUM_BINS, label='histogram')
     plt.axvline(x=mean_snr, color='lime', label='mean')
     plt.axvline(x=median_snr, color='orange', label='median')
     plt.title('Histogram SNR')
     plt.xlabel('SNR [dB]')
     plt.legend()
 
+    indices_sorted_snr = np.argsort(snr)
+    worst_snr_indices = indices_sorted_snr[0:NUM_WORST]
+    best_snr_indices = indices_sorted_snr[-NUM_BEST:]
+
+    ORIGINAL_WORST_EXAMPLES_PATH = os.path.join(ORIGINAL_PATH, WORST_SNR_FOLDER)
+    STEG_WORST_EXAMPLES_PATH = os.path.join(STEG_PATH, WORST_SNR_FOLDER)
+
+    ORIGINAL_BEST_EXAMPLES_PATH = os.path.join(ORIGINAL_PATH, BEST_SNR_EXAMPLES)
+    STEG_BEST_EXAMPLES_PATH = os.path.join(STEG_PATH, BEST_SNR_EXAMPLES)
+
+    Path(ORIGINAL_WORST_EXAMPLES_PATH).mkdir(parents=True, exist_ok=True)
+    Path(STEG_WORST_EXAMPLES_PATH).mkdir(parents=True, exist_ok=True)
+    Path(ORIGINAL_BEST_EXAMPLES_PATH).mkdir(parents=True, exist_ok=True)
+    Path(STEG_BEST_EXAMPLES_PATH).mkdir(parents=True, exist_ok=True)
+
+    for idx in worst_snr_indices:
+        write(os.path.join(ORIGINAL_WORST_EXAMPLES_PATH, DATASET + str(idx) + '.wav'), FS, original_audio[idx, :])
+        write(os.path.join(STEG_WORST_EXAMPLES_PATH, DATASET + str(idx) + '.wav'), FS, modified_audio[idx, :])
+
+    for idx in best_snr_indices:
+        write(os.path.join(ORIGINAL_BEST_EXAMPLES_PATH, DATASET + str(idx) + '.wav'), FS, original_audio[idx, :])
+        write(os.path.join(STEG_BEST_EXAMPLES_PATH, DATASET + str(idx) + '.wav'), FS, modified_audio[idx, :])
+
     # %% PSNR
-
-    # TODO Not sure if I'm doing this right
-
-    min_original = np.amin(original_audio)
-    min_modified = np.amin(modified_audio)
-
-    max_original = np.amax(original_audio - min_original)
-    max_modified = np.amax(modified_audio - min_modified)
-    max_val = np.max([max_modified, max_original])
-
-    pmse = np.sum((original_audio - min_original - modified_audio + min_modified) ** 2, axis=1) / original_audio.shape[
-        1]
-
-    psnr = 10 * np.log10(max_val ** 2 / pmse)
-    mean_psnr = np.mean(psnr)
-    median_psnr = np.median(psnr)
-
-    plt.figure()
-    plt.hist(x=psnr, bins=30, label='histogram')
-    plt.axvline(x=mean_psnr, color='lime', label='mean')
-    plt.axvline(x=median_psnr, color='orange', label='median')
-    plt.title('Histogram PSNR')
-    plt.xlabel('PSNR [dB]')
-    plt.legend()
+    #
+    # # TODO Not sure if I'm doing this right
+    #
+    # min_original = np.amin(original_audio)
+    # min_modified = np.amin(modified_audio)
+    #
+    # max_original = np.amax(original_audio - min_original)
+    # max_modified = np.amax(modified_audio - min_modified)
+    # max_val = np.max([max_modified, max_original])
+    #
+    # pmse = np.sum((original_audio - min_original - modified_audio + min_modified) ** 2, axis=1) / original_audio.shape[
+    #     1]
+    #
+    # psnr = 10 * np.log10(max_val ** 2 / pmse)
+    # mean_psnr = np.mean(psnr)
+    # median_psnr = np.median(psnr)
+    #
+    # plt.figure()
+    # plt.hist(x=psnr, bins=30, label='histogram')
+    # plt.axvline(x=mean_psnr, color='lime', label='mean')
+    # plt.axvline(x=median_psnr, color='orange', label='median')
+    # plt.title('Histogram PSNR')
+    # plt.xlabel('PSNR [dB]')
+    # plt.legend()
 
     # TODO SNR and PSNR, to find peak do MAX of original and stego
     # TODO do some tests as in SNR, spectrograms, noise and quantization seristance
