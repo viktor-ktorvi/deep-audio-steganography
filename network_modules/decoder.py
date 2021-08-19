@@ -56,6 +56,7 @@ class Decoder(nn.Module):
             if i != len(self.linear_sizes) - 1:
                 linear_modules.append(nn.Sequential(
                     nn.Linear(**linear_size.parameters),
+                    nn.BatchNorm1d(linear_size.parameters['out_features']),
                     nn.ReLU()
                 ))
             else:
