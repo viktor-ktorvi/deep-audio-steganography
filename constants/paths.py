@@ -4,7 +4,7 @@ import numpy as np
 
 DATA_FILENAME = 'audio_data'
 PRETRAINED_MODELS_PATH = 'waveGAN_models'
-TRAIN_DATA_PATH = 'data'
+TRAIN_DATA_PATH = 'data large'
 INFERENCE_DATA_FOLDER = 'inference data'
 INFERENCE_RESULTS_FOLDER = 'inference results'
 

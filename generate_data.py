@@ -14,10 +14,10 @@ DATASET = 'birds'  # one of 'digits', 'speech', 'birds', 'drums', 'piano'
 DATA_PATH = TRAIN_DATA_PATH
 
 GENERATE_BATCH_SIZE = 64
-NUM_BATCHES = 50
+NUM_BATCHES = 200
 INPUT_LEN = 100
 OUTPUT_LEN = SIGNAL_LEN
-SAVE_AS_WAV_PERCENT = 0.05
+SAVE_AS_WAV_PERCENT = 0.01
 
 Fs = FS  # Hz
 
