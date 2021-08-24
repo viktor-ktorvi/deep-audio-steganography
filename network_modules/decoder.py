@@ -7,14 +7,14 @@ from constants.parameters import MESSAGE_LEN
 
 
 class Decoder(nn.Module):
-    def __init__(self):
+    def __init__(self, message_len):
         super(Decoder, self).__init__()
 
         strides = [4, 8, 4]
         kernel_sizes = [KERNELS['large'], KERNELS['large'], KERNELS['medium']]
         out_channels = [CHANNELS['medium'], CHANNELS['large'], CHANNELS['small']]
 
-        linear_out_features = [8 * MESSAGE_LEN, MESSAGE_LEN]
+        linear_out_features = [8 * message_len, message_len]
         n = len(out_channels)
 
         self.conv_sizes = []
@@ -75,10 +75,4 @@ class Decoder(nn.Module):
 
 
 if __name__ == '__main__':
-    decoder = Decoder().to(DEVICE)
-    print(decoder)
-
-    batch_size = 17
-
-    x = torch.randn(size=(batch_size, 1, SIGNAL_LEN)).to(DEVICE)
-    y = decoder(x)
+    pass

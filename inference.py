@@ -46,8 +46,10 @@ if __name__ == '__main__':
     # TODO Really should be saving all the parameters as one json so that I can just pass them in as a dict
     strides = np.load(os.path.join(PARAMETERS_PATH, 'strides.npy'))
     bottleneck_channel_size = training_parameters['BOTTLENECK_CHANNEL_SIZE']
+    message_len = training_parameters['MESSAGE_LEN']
 
-    model = AutoEncoder(strides=strides, bottleneck_channel_size=bottleneck_channel_size).to(DEVICE)
+    model = AutoEncoder(strides=strides, bottleneck_channel_size=bottleneck_channel_size, message_len=message_len).to(
+        DEVICE)
     model.load_state_dict(torch.load(MODEL_PATH))
 
     # %% Loading data

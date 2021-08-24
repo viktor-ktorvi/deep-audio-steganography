@@ -10,7 +10,8 @@ from scipy.io.wavfile import write
 from data_loading import get_dataset
 from utils.accuracy import pass_data_through, calc_accuracy
 
-from constants.parameters import BATCH_SIZE, LEARNING_RATE, NUM_EPOCHS, save_parameters, BOTTLENECK_CHANNEL_SIZE, HIGH
+from constants.parameters import BATCH_SIZE, LEARNING_RATE, NUM_EPOCHS, save_parameters, BOTTLENECK_CHANNEL_SIZE, HIGH, \
+    MESSAGE_LEN
 from constants.constants import DEVICE, FS
 from constants.paths import SAVE_MODELS_PATH, MODEL_NAME, MODEL_EXTENSION, MODEL_PATH, ORIGINAL_AUDIO_PATH, \
     STEGANOGRAPHIC_AUDIO_PATH, MODEL_PARAMETERS_PATH
@@ -18,7 +19,7 @@ from constants.paths import SAVE_MODELS_PATH, MODEL_NAME, MODEL_EXTENSION, MODEL
 from network_modules.autoencoder import AutoEncoder
 from loss.autoencoder_loss import AutoEncoderLoss
 
-STRIDES = [4, 4, 2]
+STRIDES = [8, 8, 4]
 VALIDATION_BATCH_SIZE = 100
 WAV_SAVING_NUM = 30
 
@@ -38,7 +39,8 @@ if __name__ == '__main__':
 
     # %% Model and optimizer
 
-    autoencoder = AutoEncoder(strides=STRIDES, bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE).to(DEVICE)
+    autoencoder = AutoEncoder(strides=STRIDES, bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE,
+                              message_len=MESSAGE_LEN).to(DEVICE)
 
     criterion = AutoEncoderLoss()
 

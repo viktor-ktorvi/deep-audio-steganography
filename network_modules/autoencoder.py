@@ -11,11 +11,11 @@ from constants.parameters import MESSAGE_LEN
 
 
 class AutoEncoder(nn.Module):
-    def __init__(self, strides, bottleneck_channel_size):
+    def __init__(self, strides, bottleneck_channel_size, message_len):
         super(AutoEncoder, self).__init__()
 
         self.encoder = Encoder(strides=strides, bottleneck_channel_size=bottleneck_channel_size)
-        self.decoder = Decoder()
+        self.decoder = Decoder(message_len=message_len)
 
     def forward(self, x, message_reshaped):
         modified_audio = self.encoder(x, message_reshaped)
@@ -25,14 +25,4 @@ class AutoEncoder(nn.Module):
 
 
 if __name__ == '__main__':
-    autoencoder = AutoEncoder(strides=[4, 8, 8], bottleneck_channel_size=25).to(DEVICE)
-    print(autoencoder)
-
-    batch_size = 17
-
-    messages = np.random.randint(low=0, high=2, size=(batch_size, MESSAGE_LEN))
-    messages_reshaped = reshape_messages(messages)
-    messages_reshaped_tensor = torch.tensor(messages_reshaped).to(DEVICE)
-
-    x = torch.randn(size=(batch_size, 1, SIGNAL_LEN)).to(DEVICE)
-    reconstructed_message, modified_audio = autoencoder(x, messages_reshaped_tensor)
+    pass
