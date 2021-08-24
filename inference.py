@@ -141,30 +141,6 @@ if __name__ == '__main__':
         write(os.path.join(STEG_BEST_EXAMPLES_PATH, DATASET + str(idx) + '.wav'), FS, modified_audio[idx, :])
 
     # %% PSNR
-    #
-    # # TODO Not sure if I'm doing this right
-    #
-    # min_original = np.amin(original_audio)
-    # min_modified = np.amin(modified_audio)
-    #
-    # max_original = np.amax(original_audio - min_original)
-    # max_modified = np.amax(modified_audio - min_modified)
-    # max_val = np.max([max_modified, max_original])
-    #
-    # pmse = np.sum((original_audio - min_original - modified_audio + min_modified) ** 2, axis=1) / original_audio.shape[
-    #     1]
-    #
-    # psnr = 10 * np.log10(max_val ** 2 / pmse)
-    # mean_psnr = np.mean(psnr)
-    # median_psnr = np.median(psnr)
-    #
-    # plt.figure()
-    # plt.hist(x=psnr, bins=30, label='histogram')
-    # plt.axvline(x=mean_psnr, color='lime', label='mean')
-    # plt.axvline(x=median_psnr, color='orange', label='median')
-    # plt.title('Histogram PSNR')
-    # plt.xlabel('PSNR [dB]')
-    # plt.legend()
 
     # TODO SNR and PSNR, to find peak do MAX of original and stego
     # TODO do some tests as in SNR, spectrograms, noise and quantization seristance
