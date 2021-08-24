@@ -32,8 +32,22 @@ NUM_BINS = 30
 
 NUM_WORST = 10
 NUM_BEST = 10
-DEVICE = 'cpu'
+# DEVICE = 'cpu'
+
+SMALL_SIZE = 14
+MEDIUM_SIZE = 15
+BIGGER_SIZE = 16
+
+
 if __name__ == '__main__':
+    # %% Plot specs
+    plt.rc('font', size=SMALL_SIZE)  # controls default text sizes
+    plt.rc('axes', titlesize=BIGGER_SIZE)  # fontsize of the axes title
+    plt.rc('axes', labelsize=MEDIUM_SIZE)  # fontsize of the x and y labels
+    plt.rc('xtick', labelsize=SMALL_SIZE)  # fontsize of the tick labels
+    plt.rc('ytick', labelsize=SMALL_SIZE)  # fontsize of the tick labels
+    plt.rc('legend', fontsize=SMALL_SIZE)  # legend fontsize
+    plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
     # %% Seeds
     np.random.seed(1)
     torch.manual_seed(1)
@@ -107,7 +121,7 @@ if __name__ == '__main__':
     mean_snr = np.mean(snr)
     median_snr = np.median(snr)
 
-    plt.figure()
+    plt.figure(tight_layout=True)
     plt.hist(x=snr, bins=NUM_BINS, label='histogram')
     plt.axvline(x=mean_snr, color='lime', label='mean')
     plt.axvline(x=median_snr, color='orange', label='median')
