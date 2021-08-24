@@ -34,6 +34,10 @@ NUM_WORST = 10
 NUM_BEST = 10
 
 if __name__ == '__main__':
+    # %% Seeds
+    np.random.seed(1)
+    torch.manual_seed(1)
+    torch.cuda.manual_seed(1)
     # %% Loading parameters and the model
     MODEL_FOLDER_PATH = os.path.join(SAVE_MODELS_PATH, MODEL_TO_LOAD)
     MODEL_PATH = os.path.join(MODEL_FOLDER_PATH, MODEL_NAME + MODEL_EXTENSION)
@@ -112,7 +116,7 @@ if __name__ == '__main__':
 
     indices_sorted_snr = np.argsort(snr)
     worst_snr_indices = indices_sorted_snr[0:NUM_WORST]
-    best_snr_indices = indices_sorted_snr[-NUM_BEST:]
+    best_snr_indices = indices_sorted_snr[-NUM_BEST:][::-1]
 
     ORIGINAL_WORST_EXAMPLES_PATH = os.path.join(ORIGINAL_PATH, WORST_SNR_FOLDER)
     STEG_WORST_EXAMPLES_PATH = os.path.join(STEG_PATH, WORST_SNR_FOLDER)
@@ -170,13 +174,41 @@ if __name__ == '__main__':
 
     # %% Spectrogram
 
-    k = 1e8
+    k = 1e7
     log_intensity = lambda Sxx, k: np.log(1 + k * Sxx)
 
-    f_axis, t_axis, Sxx = spectrogram(original_audio[1, :], FS)
+    indices = [best_snr_indices[0],
+               indices_sorted_snr[round(len(indices_sorted_snr) / 2) + np.random.randint(low=-5, high=5)],
+               worst_snr_indices[0]]
+    print("\nSNR of selected signals: ", snr[indices], " [dB]")
 
-    plt.figure()
-    plt.pcolormesh(t_axis, f_axis, log_intensity(Sxx, k), shading='gouraud')
-    plt.ylabel('f [Hz]')
-    plt.xlabel('t [s]')
+    height = 3
+    width = 3
+    fig, ax = plt.subplots(height, width, sharey='all', sharex='all', tight_layout=True)
+    ax_titles = ['Original', 'Modified', 'Difference']
+
+    for i in range(3):
+
+        f_axis, t_axis, original_Sxx = spectrogram(original_audio[indices[i], :], FS)
+        _, _, modified_Sxx = spectrogram(modified_audio[indices[i], :], FS)
+        difference_Sxx = np.abs(original_Sxx - modified_Sxx)
+
+        spectrograms = [original_Sxx, modified_Sxx, difference_Sxx]
+
+        for j in range(len(spectrograms)):
+            ax[i, j].pcolormesh(t_axis, f_axis, log_intensity(spectrograms[j], k), shading='gouraud')
+
+            # ax[i, j].set_box_aspect(1)
+            if i == 0:
+                ax[i, j].set_title(ax_titles[j])
+
+            if i == 2:
+                ax[i, j].set_xlabel('t [s]')
+
+            if j == 0:
+                ax[i, j].set_ylabel('f [Hz]')
+
+    # https://stackoverflow.com/questions/12439588/how-to-maximize-a-plt-show-window-using-python
+    figManager = plt.get_current_fig_manager()
+    figManager.window.showMaximized()
     plt.show()
