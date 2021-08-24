@@ -188,3 +188,6 @@ if __name__ == '__main__':
     figManager = plt.get_current_fig_manager()
     figManager.window.showMaximized()
     plt.show()
+
+    # TODO Ovde se vidi da nekad krije na odredjenim ucestanostima, to je lose i trebalo bi u radu da pricam da
+    #  tu adversarial training moze doci u pricu
