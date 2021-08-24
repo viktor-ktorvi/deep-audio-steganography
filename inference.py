@@ -32,7 +32,7 @@ NUM_BINS = 30
 
 NUM_WORST = 10
 NUM_BEST = 10
-
+DEVICE = 'cpu'
 if __name__ == '__main__':
     # %% Seeds
     np.random.seed(1)
@@ -66,7 +66,8 @@ if __name__ == '__main__':
 
     dataloader = DataLoader(data, batch_size=len(data), shuffle=False)
     with torch.no_grad():
-        original_messages, reconstructed_messages, original_audio, modified_audio = pass_data_through(model, dataloader)
+        original_messages, reconstructed_messages, original_audio, modified_audio = pass_data_through(model, dataloader,
+                                                                                                      DEVICE)
     modified_audio = modified_audio.squeeze()
 
     # %% Accuracy

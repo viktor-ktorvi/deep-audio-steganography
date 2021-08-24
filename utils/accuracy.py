@@ -3,11 +3,12 @@ import numpy as np
 from constants.constants import DEVICE
 from data_loading import inverse_scale_messages
 
-def pass_data_through(model, dataloader):
+
+def pass_data_through(model, dataloader, device):
     for i, data in enumerate(dataloader, 0):
-        original_audio, original_messages, original_messages_reshaped = data[0].to(DEVICE, dtype=torch.float), data[
+        original_audio, original_messages, original_messages_reshaped = data[0].to(device, dtype=torch.float), data[
             1].to(
-            DEVICE, dtype=torch.float), data[2].to(DEVICE, dtype=torch.float)
+            device, dtype=torch.float), data[2].to(device, dtype=torch.float)
 
         reconstructed_message, modified_audio = model(original_audio.unsqueeze(1), original_messages_reshaped)
 
@@ -19,15 +20,15 @@ def pass_data_through(model, dataloader):
         return original_messages_cpu, reconstructed_message_cpu, original_audio_cpu, modified_audio_cpu
 
 
-def calc_accuracy(model, dataloader, high):
+def calc_accuracy(model, dataloader, high, device):
     original_messages_cpu, reconstructed_message_cpu, original_audio_cpu, modified_audio_cpu = pass_data_through(model,
-                                                                                                                 dataloader)
+                                                                                                                 dataloader,
+                                                                                                                 device)
 
     return calc_mean_accuracy(reconstructed_message_cpu, original_messages_cpu, high=high)
 
 
 def calc_mean_accuracy(outputs_cpu, test_labels_cpu, high):
-
     accuracies = []
 
     outputs_cpu = inverse_scale_messages(outputs_cpu, high=high)

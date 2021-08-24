@@ -3,12 +3,13 @@ import json
 
 from constants.constants import CHANNELS
 
-MESSAGE_LEN = 512
+MESSAGE_LEN = 64
+STRIDES = [8, 8, 4]
 BOTTLENECK_CHANNEL_SIZE = 25
 BATCH_SIZE = 64
 NUM_EPOCHS = 100
 LEARNING_RATE = 0.00005
-HIGH = 2
+HIGH = 32
 
 TRAINING_PARAMETERS_JSON = 'training parameters.json'
 
@@ -20,7 +21,8 @@ def save_parameters(filepath):
         'BATCH_SIZE': BATCH_SIZE,
         'NUM_EPOCHS': NUM_EPOCHS,
         'LEARNING_RATE': LEARNING_RATE,
-        'HIGH': HIGH
+        'HIGH': HIGH,
+        'STRIDES': STRIDES
     }
 
     with open(os.path.join(filepath, TRAINING_PARAMETERS_JSON), 'w') as fp:

@@ -11,7 +11,7 @@ from data_loading import get_dataset
 from utils.accuracy import pass_data_through, calc_accuracy
 
 from constants.parameters import BATCH_SIZE, LEARNING_RATE, NUM_EPOCHS, save_parameters, BOTTLENECK_CHANNEL_SIZE, HIGH, \
-    MESSAGE_LEN
+    MESSAGE_LEN, STRIDES
 from constants.constants import DEVICE, FS
 from constants.paths import SAVE_MODELS_PATH, MODEL_NAME, MODEL_EXTENSION, MODEL_PATH, ORIGINAL_AUDIO_PATH, \
     STEGANOGRAPHIC_AUDIO_PATH, MODEL_PARAMETERS_PATH
@@ -19,7 +19,6 @@ from constants.paths import SAVE_MODELS_PATH, MODEL_NAME, MODEL_EXTENSION, MODEL
 from network_modules.autoencoder import AutoEncoder
 from loss.autoencoder_loss import AutoEncoderLoss
 
-STRIDES = [4, 4, 2]
 VALIDATION_BATCH_SIZE = 100
 WAV_SAVING_NUM = 30
 
@@ -86,10 +85,10 @@ if __name__ == '__main__':
             validation_dataloader = DataLoader(validation_set, batch_size=VALIDATION_BATCH_SIZE, shuffle=True)
             train_test_dataloader = DataLoader(train_set, batch_size=VALIDATION_BATCH_SIZE, shuffle=True)
 
-            val_acc = calc_accuracy(autoencoder, validation_dataloader, high=HIGH)
+            val_acc = calc_accuracy(autoencoder, validation_dataloader, high=HIGH, device=DEVICE)
             val_acc_array.append(val_acc)
 
-            train_acc = calc_accuracy(autoencoder, train_test_dataloader, high=HIGH)
+            train_acc = calc_accuracy(autoencoder, train_test_dataloader, high=HIGH, device=DEVICE)
             train_acc_array.append(train_acc)
 
         print("\ne: {:<20}ta: {:<20.2f}va: {:<20.2f} {:<20.3f}".format(epoch, train_acc, val_acc, encoder_running_loss))
@@ -117,7 +116,7 @@ if __name__ == '__main__':
     with torch.no_grad():
         test_dataloader = DataLoader(test_set, batch_size=len(test_set), shuffle=True)
 
-        test_acc = calc_accuracy(autoencoder, test_dataloader, high=HIGH)
+        test_acc = calc_accuracy(autoencoder, test_dataloader, high=HIGH, device=DEVICE)
         print('\nTest accuracy is {:2.2f} %'.format(100 * test_acc))
 
     print('\nSaving data...')
@@ -137,7 +136,7 @@ if __name__ == '__main__':
 
     with torch.no_grad():
         wav_saving_dataloader = DataLoader(test_set, batch_size=WAV_SAVING_NUM, shuffle=True)
-        _, _, original_audio, modified_audio = pass_data_through(autoencoder, wav_saving_dataloader)
+        _, _, original_audio, modified_audio = pass_data_through(autoencoder, wav_saving_dataloader, DEVICE)
 
         original_audio = original_audio.squeeze()
         modified_audio = modified_audio.squeeze()
