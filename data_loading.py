@@ -51,7 +51,7 @@ def get_dataset(high=HIGH, bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE):
 
 
 def get_inference_data(data_path, num_signals=None, high=HIGH,
-                       bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE):
+                       bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE, message_len=MESSAGE_LEN):
     data = np.load(os.path.join(data_path, DATA_FILENAME + '.npy'))
 
     if num_signals is None:
@@ -59,7 +59,7 @@ def get_inference_data(data_path, num_signals=None, high=HIGH,
     else:
         NUM_SIGNALS = num_signals
 
-    messages = np.random.randint(low=0, high=high, size=(NUM_SIGNALS, MESSAGE_LEN))
+    messages = np.random.randint(low=0, high=high, size=(NUM_SIGNALS, message_len))
     messages = scale_messages(messages, high=high)
     messages_reshaped = reshape_messages(messages, bottleneck_channel_size=bottleneck_channel_size)
 
@@ -69,5 +69,4 @@ def get_inference_data(data_path, num_signals=None, high=HIGH,
 
 
 if __name__ == '__main__':
-    train_set, validation_set, test_set, data_mean, data_std = get_dataset()
-    print(len(train_set))
+    pass

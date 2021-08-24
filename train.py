@@ -19,7 +19,7 @@ from constants.paths import SAVE_MODELS_PATH, MODEL_NAME, MODEL_EXTENSION, MODEL
 from network_modules.autoencoder import AutoEncoder
 from loss.autoencoder_loss import AutoEncoderLoss
 
-STRIDES = [8, 8, 4]
+STRIDES = [4, 4, 2]
 VALIDATION_BATCH_SIZE = 100
 WAV_SAVING_NUM = 30
 

@@ -3,6 +3,7 @@ import json
 import numpy as np
 import torch
 from scipy.io.wavfile import write
+from scipy.signal import spectrogram
 from pathlib import Path
 from torch.utils.data import DataLoader
 from matplotlib import pyplot as plt
@@ -17,7 +18,7 @@ from constants.paths import SAVE_MODELS_PATH, MODEL_PARAMETERS_FOLDER, INFERENCE
 from constants.parameters import TRAINING_PARAMETERS_JSON
 from constants.constants import DEVICE, FS
 
-MODEL_TO_LOAD = '64 x 1.0 bit'
+MODEL_TO_LOAD = '512 x 1.0 bit'
 MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
 DATASET = 'birds'
@@ -56,9 +57,10 @@ if __name__ == '__main__':
     data = get_inference_data(data_path=INFERENCE_DATA_PATH,
                               num_signals=None,
                               high=training_parameters['HIGH'],
-                              bottleneck_channel_size=training_parameters['BOTTLENECK_CHANNEL_SIZE'])
+                              bottleneck_channel_size=training_parameters['BOTTLENECK_CHANNEL_SIZE'],
+                              message_len=message_len)
 
-    dataloader = DataLoader(data, batch_size=len(data), shuffle=True)
+    dataloader = DataLoader(data, batch_size=len(data), shuffle=False)
     with torch.no_grad():
         original_messages, reconstructed_messages, original_audio, modified_audio = pass_data_through(model, dataloader)
     modified_audio = modified_audio.squeeze()
@@ -165,3 +167,15 @@ if __name__ == '__main__':
     #  histogrm of SNR because some are really good, some are trash (maybe train on more data)
     #  find the trash SNR examples and listen to them
     #  test idea: shift signal by n samples cyclicly and see if it recnostructs the message correctly
+
+    # %% Spectrogram
+
+    k = 1e8
+
+    f_axis, t_axis, Sxx = spectrogram(original_audio[1, :], FS)
+
+    plt.figure()
+    plt.pcolormesh(t_axis, f_axis, np.log(1 + k * Sxx), shading='gouraud')
+    plt.ylabel('f [Hz]')
+    plt.xlabel('t [s]')
+    plt.show()
