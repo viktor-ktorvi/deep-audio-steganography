@@ -171,11 +171,12 @@ if __name__ == '__main__':
     # %% Spectrogram
 
     k = 1e8
+    log_intensity = lambda Sxx, k: np.log(1 + k * Sxx)
 
     f_axis, t_axis, Sxx = spectrogram(original_audio[1, :], FS)
 
     plt.figure()
-    plt.pcolormesh(t_axis, f_axis, np.log(1 + k * Sxx), shading='gouraud')
+    plt.pcolormesh(t_axis, f_axis, log_intensity(Sxx, k), shading='gouraud')
     plt.ylabel('f [Hz]')
     plt.xlabel('t [s]')
     plt.show()
