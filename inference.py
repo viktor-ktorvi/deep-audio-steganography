@@ -21,7 +21,7 @@ from constants.constants import DEVICE, FS
 MODEL_TO_LOAD = '512 x 1.0 bit'
 MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
-DATASET = 'birds'
+DATASET = 'drums'
 
 RANDOM_RESULTS_FOLDER = 'random examples'
 WORST_SNR_FOLDER = 'worst snr examples'
