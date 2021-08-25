@@ -3,13 +3,13 @@ import json
 
 from constants.constants import CHANNELS
 
-MESSAGE_LEN = 64
-STRIDES = [8, 8, 4]
+MESSAGE_LEN = 512
+STRIDES = [4, 4, 2]
 BOTTLENECK_CHANNEL_SIZE = 25
 BATCH_SIZE = 64
-NUM_EPOCHS = 100
+NUM_EPOCHS = 150
 LEARNING_RATE = 0.00005
-HIGH = 32
+HIGH = 16
 
 TRAINING_PARAMETERS_JSON = 'training parameters.json'
 

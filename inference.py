@@ -163,6 +163,8 @@ if __name__ == '__main__':
     #  find the trash SNR examples and listen to them
     #  test idea: shift signal by n samples cyclicly and see if it recnostructs the message correctly
 
+    # TODO Test on real sound data! Something sampled at 16 kHz and chopped up into 16384 sample chunks
+
     # %% Spectrogram
 
     k = 1e7
