@@ -20,9 +20,10 @@ DATASETS = ['birds', 'piano', 'drums', 'speech', 'digits']
 
 NUM_BINS = 30
 
-SMALL_SIZE = 14
-MEDIUM_SIZE = 15
-BIGGER_SIZE = 16
+# SMALL_SIZE = 14
+# MEDIUM_SIZE = 15
+# BIGGER_SIZE = 16
+from inference import SMALL_SIZE, MEDIUM_SIZE, BIGGER_SIZE
 
 if __name__ == '__main__':
     # %% Plot specs
@@ -58,7 +59,8 @@ if __name__ == '__main__':
         bottleneck_channel_size = training_parameters['BOTTLENECK_CHANNEL_SIZE']
         message_len = training_parameters['MESSAGE_LEN']
 
-        model = AutoEncoder(strides=strides, bottleneck_channel_size=bottleneck_channel_size, message_len=message_len).to(
+        model = AutoEncoder(strides=strides, bottleneck_channel_size=bottleneck_channel_size,
+                            message_len=message_len).to(
             DEVICE)
         model.load_state_dict(torch.load(MODEL_PATH))
 
@@ -71,14 +73,15 @@ if __name__ == '__main__':
 
         dataloader = DataLoader(data, batch_size=len(data), shuffle=False)
         with torch.no_grad():
-            original_messages, reconstructed_messages, original_audio, modified_audio = pass_data_through(model, dataloader,
+            original_messages, reconstructed_messages, original_audio, modified_audio = pass_data_through(model,
+                                                                                                          dataloader,
                                                                                                           DEVICE)
         modified_audio = modified_audio.squeeze()
 
         # %% Accuracy
         test_acc = calc_mean_accuracy(reconstructed_messages, original_messages, high=training_parameters['HIGH'])
 
-        print("Test accuracy for {:s} is {:3.2f} %".format(dataset,test_acc * 100))
+        print("Test accuracy for {:s} is {:3.2f} %".format(dataset, test_acc * 100))
 
         # %% SNR
         power_original = np.sum(original_audio ** 2, axis=1) / original_audio.shape[1]
@@ -94,15 +97,24 @@ if __name__ == '__main__':
         median_snrs.append(median_snr)
 
     # %% Plots
+    # TODO ne radi bas savrseno
     xmin = np.amin(snrs) - 0.1 * np.abs(np.amin(snrs))
+    # xmin = -20
     xmax = np.amax(snrs) + 0.1 * np.abs(np.amax(snrs))
-
+    width = len(snrs)
+    height = 1
+    fig, ax = plt.subplots(height, width, sharey='all', sharex='none', tight_layout=True)
+    # plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
     for i in range(len(snrs)):
-        plt.figure(tight_layout=True)
-        plt.hist(x=snrs[i], bins=NUM_BINS, label='histogram')
-        plt.axvline(x=mean_snrs[i], color='lime', label='mean')
-        plt.axvline(x=median_snrs[i], color='orange', label='median')
-        plt.title('Histogram SNR ' + DATASETS[i])
-        plt.xlabel('SNR [dB]')
-        plt.xlim(xmin, xmax)
-        plt.legend()
+        ax[i].set_box_aspect(1.7)
+        ax[i].hist(x=snrs[i], bins=NUM_BINS, label='histogram')
+        ax[i].axvline(x=mean_snrs[i], color='lime', label='mean = {:2.2f} [dB]'.format(mean_snrs[i]))
+        ax[i].axvline(x=median_snrs[i], color='orange', label='median = {:2.2f} [dB]'.format(median_snrs[i]))
+        ax[i].set_title(DATASETS[i] if DATASETS[i] != 'birds' else 'birds (train set)')
+        ax[i].set_xlabel('SNR [dB]')
+        ax[i].set_xlim(xmin, xmax)
+        ax[i].legend(bbox_to_anchor=(1.3, -0.35))
+
+    figManager = plt.get_current_fig_manager()
+    figManager.window.showMaximized()
+    plt.show()

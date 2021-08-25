@@ -34,9 +34,9 @@ NUM_WORST = 10
 NUM_BEST = 10
 # DEVICE = 'cpu'
 
-SMALL_SIZE = 14
-MEDIUM_SIZE = 15
-BIGGER_SIZE = 16
+SMALL_SIZE = 18
+MEDIUM_SIZE = 18
+BIGGER_SIZE = 18
 
 
 if __name__ == '__main__':
