@@ -13,7 +13,7 @@ from constants.paths import SAVE_MODELS_PATH, MODEL_PARAMETERS_FOLDER, INFERENCE
 from constants.parameters import TRAINING_PARAMETERS_JSON
 from constants.constants import DEVICE, FS
 
-MODEL_TO_LOAD = '512 x 1.0 bit'
+MODEL_TO_LOAD = '512 x 4.0 bit'
 MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
 DATASETS = ['birds', 'piano', 'drums', 'speech', 'digits']

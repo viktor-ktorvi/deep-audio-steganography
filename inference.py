@@ -18,7 +18,7 @@ from constants.paths import SAVE_MODELS_PATH, MODEL_PARAMETERS_FOLDER, INFERENCE
 from constants.parameters import TRAINING_PARAMETERS_JSON
 from constants.constants import DEVICE, FS
 
-MODEL_TO_LOAD = '512 x 1.0 bit'
+MODEL_TO_LOAD = '512 x 4.0 bit'
 MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
 DATASET = 'birds'
@@ -164,6 +164,8 @@ if __name__ == '__main__':
     #  test idea: shift signal by n samples cyclicly and see if it recnostructs the message correctly
 
     # TODO Test on real sound data! Something sampled at 16 kHz and chopped up into 16384 sample chunks
+
+    # TODO Make messages in gray code, or just mention it...
 
     # %% Spectrogram
 
