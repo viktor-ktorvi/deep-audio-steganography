@@ -132,7 +132,7 @@ if __name__ == '__main__':
 
     save_parameters(MODEL_PARAMETERS_PATH)
 
-    np.save(os.path.join(MODEL_PARAMETERS_PATH, 'strides.npy'), STRIDES)
+    # np.save(os.path.join(MODEL_PARAMETERS_PATH, 'strides.npy'), STRIDES)
 
     with torch.no_grad():
         wav_saving_dataloader = DataLoader(test_set, batch_size=WAV_SAVING_NUM, shuffle=True)

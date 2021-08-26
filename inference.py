@@ -12,6 +12,7 @@ from network_modules.autoencoder import AutoEncoder
 from data_loading import get_inference_data
 from utils.accuracy import pass_data_through, calc_mean_accuracy
 from utils.delete_all_files_in_folder import delete_all_files_in_folder
+from utils.inference_utils import signal_to_noise_ratio, load_saved_model
 
 from constants.paths import SAVE_MODELS_PATH, MODEL_PARAMETERS_FOLDER, INFERENCE_DATA_FOLDER, INFERENCE_RESULTS_FOLDER, \
     STEGANOGRAPHIC_AUDIO_FOLDER, ORIGINAL_AUDIO_FOLDER
@@ -38,7 +39,6 @@ SMALL_SIZE = 18
 MEDIUM_SIZE = 18
 BIGGER_SIZE = 18
 
-
 if __name__ == '__main__':
     # %% Plot specs
     plt.rc('font', size=SMALL_SIZE)  # controls default text sizes
@@ -53,30 +53,26 @@ if __name__ == '__main__':
     torch.manual_seed(1)
     torch.cuda.manual_seed(1)
     # %% Loading parameters and the model
-    MODEL_FOLDER_PATH = os.path.join(SAVE_MODELS_PATH, MODEL_TO_LOAD)
-    MODEL_PATH = os.path.join(MODEL_FOLDER_PATH, MODEL_NAME + MODEL_EXTENSION)
-    PARAMETERS_PATH = os.path.join(MODEL_FOLDER_PATH, MODEL_PARAMETERS_FOLDER)
-    INFERENCE_DATA_PATH = os.path.join(INFERENCE_DATA_FOLDER, DATASET)
+    model_paths = {
+        'save_models_path': SAVE_MODELS_PATH,
+        'model_to_load': MODEL_TO_LOAD,
+        'model_name': MODEL_NAME,
+        'model_extension': MODEL_EXTENSION,
+        'model_parameters_folder': MODEL_PARAMETERS_FOLDER,
+        'training_parameters_json': TRAINING_PARAMETERS_JSON
+    }
 
-    f = open(os.path.join(PARAMETERS_PATH, TRAINING_PARAMETERS_JSON))
-    training_parameters = json.load(f)
-    f.close()
-
-    # TODO Really should be saving all the parameters as one json so that I can just pass them in as a dict
-    strides = np.load(os.path.join(PARAMETERS_PATH, 'strides.npy'))
-    bottleneck_channel_size = training_parameters['BOTTLENECK_CHANNEL_SIZE']
-    message_len = training_parameters['MESSAGE_LEN']
-
-    model = AutoEncoder(strides=strides, bottleneck_channel_size=bottleneck_channel_size, message_len=message_len).to(
-        DEVICE)
-    model.load_state_dict(torch.load(MODEL_PATH))
+    model, training_parameters = load_saved_model(**model_paths)
+    model = model.to(DEVICE)
 
     # %% Loading data
+    INFERENCE_DATA_PATH = os.path.join(INFERENCE_DATA_FOLDER, DATASET)
+
     data = get_inference_data(data_path=INFERENCE_DATA_PATH,
                               num_signals=None,
                               high=training_parameters['HIGH'],
                               bottleneck_channel_size=training_parameters['BOTTLENECK_CHANNEL_SIZE'],
-                              message_len=message_len)
+                              message_len=training_parameters['MESSAGE_LEN'])
 
     dataloader = DataLoader(data, batch_size=len(data), shuffle=False)
     with torch.no_grad():
@@ -113,13 +109,7 @@ if __name__ == '__main__':
     print('Done')
 
     # %% SNR
-    power_original = np.sum(original_audio ** 2, axis=1) / original_audio.shape[1]
-
-    mse = np.sum((original_audio - modified_audio) ** 2, axis=1) / original_audio.shape[1]
-
-    snr = 10 * np.log10(power_original / mse)
-    mean_snr = np.mean(snr)
-    median_snr = np.median(snr)
+    snr, mean_snr, median_snr = signal_to_noise_ratio(original_audio, original_audio - modified_audio)
 
     plt.figure(tight_layout=True)
     plt.hist(x=snr, bins=NUM_BINS, label='histogram')
@@ -156,7 +146,21 @@ if __name__ == '__main__':
         write(os.path.join(STEG_BEST_EXAMPLES_PATH, DATASET + str(idx) + '.wav'), FS, modified_audio[idx, :])
 
     # %% PSNR
-
+    # peak2peak_squared = (np.max(original_audio, axis=1) - np.min(original_audio, axis=1)) ** 2
+    #
+    # mse = np.sum((original_audio - modified_audio) ** 2, axis=1) / original_audio.shape[1]
+    #
+    # psnr = 10 * np.log10(peak2peak_squared / mse)
+    # mean_psnr = np.mean(psnr)
+    # median_psnr = np.median(psnr)
+    #
+    # plt.figure(tight_layout=True)
+    # plt.hist(x=psnr, bins=NUM_BINS, label='histogram')
+    # plt.axvline(x=mean_psnr, color='lime', label='mean')
+    # plt.axvline(x=median_psnr, color='orange', label='median')
+    # plt.title('Histogram PSNR')
+    # plt.xlabel('PSNR [dB]')
+    # plt.legend()
     # TODO SNR and PSNR, to find peak do MAX of original and stego
     # TODO do some tests as in SNR, spectrograms, noise and quantization seristance
     #  histogrm of SNR because some are really good, some are trash (maybe train on more data)
