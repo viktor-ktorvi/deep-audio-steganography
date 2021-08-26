@@ -1,5 +1,4 @@
 import os
-import json
 import numpy as np
 import torch
 from scipy.io.wavfile import write
@@ -8,8 +7,7 @@ from pathlib import Path
 from torch.utils.data import DataLoader
 from matplotlib import pyplot as plt
 
-from network_modules.autoencoder import AutoEncoder
-from data_loading import get_inference_data
+from utils.data_loading import get_inference_data
 from utils.accuracy import pass_data_through, calc_mean_accuracy
 from utils.delete_all_files_in_folder import delete_all_files_in_folder
 from utils.inference_utils import signal_to_noise_ratio, load_saved_model, log_intensity

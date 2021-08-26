@@ -1,7 +1,6 @@
 import torch
 import numpy as np
-from constants.constants import DEVICE
-from data_loading import inverse_scale_messages
+from utils.data_loading import inverse_scale_messages
 
 
 def pass_data_through(model, dataloader, device):

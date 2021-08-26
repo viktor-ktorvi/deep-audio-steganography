@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import numpy as np
 
-from data_loading import reshape_messages
+from utils.data_loading import reshape_messages
 from utils.sizes import Conv1DLayerSizes, TransposeConv1DLayerSizes
 from constants.constants import CHANNELS, KERNELS, SIGNAL_LEN, DEVICE
 from constants.parameters import MESSAGE_LEN

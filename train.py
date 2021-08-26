@@ -7,7 +7,7 @@ from pathlib import Path
 import os
 from scipy.io.wavfile import write
 
-from data_loading import get_dataset
+from utils.data_loading import get_dataset
 from utils.accuracy import pass_data_through, calc_accuracy
 
 from constants.parameters import BATCH_SIZE, LEARNING_RATE, NUM_EPOCHS, save_parameters, BOTTLENECK_CHANNEL_SIZE, HIGH, \

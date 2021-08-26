@@ -6,12 +6,12 @@ from torch.utils.data import DataLoader
 from matplotlib import pyplot as plt
 
 from network_modules.autoencoder import AutoEncoder
-from data_loading import get_inference_data
+from utils.data_loading import get_inference_data
 from utils.accuracy import pass_data_through, calc_mean_accuracy
 
 from constants.paths import SAVE_MODELS_PATH, MODEL_PARAMETERS_FOLDER, INFERENCE_DATA_FOLDER
 from constants.parameters import TRAINING_PARAMETERS_JSON
-from constants.constants import DEVICE, FS
+from constants.constants import DEVICE
 
 MODEL_TO_LOAD = '512 x 4.0 bit'
 MODEL_NAME = 'autoencoder'

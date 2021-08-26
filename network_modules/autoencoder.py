@@ -1,13 +1,7 @@
-import numpy as np
-import torch
 from torch import nn
 
 from network_modules.encoder import Encoder
 from network_modules.decoder import Decoder
-
-from data_loading import reshape_messages
-from constants.constants import SIGNAL_LEN, DEVICE
-from constants.parameters import MESSAGE_LEN
 
 
 class AutoEncoder(nn.Module):
