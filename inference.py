@@ -12,7 +12,7 @@ from network_modules.autoencoder import AutoEncoder
 from data_loading import get_inference_data
 from utils.accuracy import pass_data_through, calc_mean_accuracy
 from utils.delete_all_files_in_folder import delete_all_files_in_folder
-from utils.inference_utils import signal_to_noise_ratio, load_saved_model
+from utils.inference_utils import signal_to_noise_ratio, load_saved_model, log_intensity
 
 from constants.paths import SAVE_MODELS_PATH, MODEL_PARAMETERS_FOLDER, INFERENCE_DATA_FOLDER, INFERENCE_RESULTS_FOLDER, \
     STEGANOGRAPHIC_AUDIO_FOLDER, ORIGINAL_AUDIO_FOLDER
@@ -66,13 +66,16 @@ if __name__ == '__main__':
     model = model.to(DEVICE)
 
     # %% Loading data
-    INFERENCE_DATA_PATH = os.path.join(INFERENCE_DATA_FOLDER, DATASET)
 
-    data = get_inference_data(data_path=INFERENCE_DATA_PATH,
-                              num_signals=None,
-                              high=training_parameters['HIGH'],
-                              bottleneck_channel_size=training_parameters['BOTTLENECK_CHANNEL_SIZE'],
-                              message_len=training_parameters['MESSAGE_LEN'])
+    inference_data_parameters = {
+        'data_path': os.path.join(INFERENCE_DATA_FOLDER, DATASET),
+        'num_signals': None,
+        'high': training_parameters['HIGH'],
+        'bottleneck_channel_size': training_parameters['BOTTLENECK_CHANNEL_SIZE'],
+        'message_len': training_parameters['MESSAGE_LEN']
+    }
+
+    data = get_inference_data(**inference_data_parameters)
 
     dataloader = DataLoader(data, batch_size=len(data), shuffle=False)
     with torch.no_grad():
@@ -145,28 +148,10 @@ if __name__ == '__main__':
         write(os.path.join(ORIGINAL_BEST_EXAMPLES_PATH, DATASET + str(idx) + '.wav'), FS, original_audio[idx, :])
         write(os.path.join(STEG_BEST_EXAMPLES_PATH, DATASET + str(idx) + '.wav'), FS, modified_audio[idx, :])
 
-    # %% PSNR
-    # peak2peak_squared = (np.max(original_audio, axis=1) - np.min(original_audio, axis=1)) ** 2
-    #
-    # mse = np.sum((original_audio - modified_audio) ** 2, axis=1) / original_audio.shape[1]
-    #
-    # psnr = 10 * np.log10(peak2peak_squared / mse)
-    # mean_psnr = np.mean(psnr)
-    # median_psnr = np.median(psnr)
-    #
-    # plt.figure(tight_layout=True)
-    # plt.hist(x=psnr, bins=NUM_BINS, label='histogram')
-    # plt.axvline(x=mean_psnr, color='lime', label='mean')
-    # plt.axvline(x=median_psnr, color='orange', label='median')
-    # plt.title('Histogram PSNR')
-    # plt.xlabel('PSNR [dB]')
-    # plt.legend()
-    # TODO SNR and PSNR, to find peak do MAX of original and stego
-    # TODO do some tests as in SNR, spectrograms, noise and quantization seristance
+    # TODO do some tests as in SNR, spectrograms, noise and quantization resistance
     #  histogrm of SNR because some are really good, some are trash (maybe train on more data)
-    #  find the trash SNR examples and listen to them
     #  test idea: shift signal by n samples cyclicly and see if it recnostructs the message correctly
-
+    #  train on ALL classes!
     # TODO Test on real sound data! Something sampled at 16 kHz and chopped up into 16384 sample chunks
 
     # TODO Make messages in gray code, or just mention it...
@@ -174,7 +159,6 @@ if __name__ == '__main__':
     # %% Spectrogram
 
     k = 1e7
-    log_intensity = lambda Sxx, k: np.log(1 + k * Sxx)
 
     indices = [best_snr_indices[0],
                indices_sorted_snr[round(len(indices_sorted_snr) / 2) + np.random.randint(low=-5, high=5)],

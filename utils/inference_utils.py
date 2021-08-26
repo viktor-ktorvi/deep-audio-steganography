@@ -36,3 +36,7 @@ def load_saved_model(save_models_path, model_to_load, model_name, model_extensio
     model.load_state_dict(torch.load(MODEL_PATH))
 
     return model, training_parameters
+
+
+def log_intensity(Sxx, k):
+    return np.log(1 + k * Sxx)
