@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
     inference_data_parameters = {
         'data_path': os.path.join(INFERENCE_DATA_FOLDER, DATASET),
-        'num_signals': None,
+        'num_signals': 'all',
         'high': training_parameters['HIGH'],
         'bottleneck_channel_size': training_parameters['BOTTLENECK_CHANNEL_SIZE'],
         'message_len': training_parameters['MESSAGE_LEN']

@@ -50,11 +50,11 @@ def get_dataset(high=HIGH, bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE):
     return train_set, validation_set, test_set
 
 
-def get_inference_data(data_path, num_signals=None, high=HIGH,
+def get_inference_data(data_path, num_signals='all', high=HIGH,
                        bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE, message_len=MESSAGE_LEN):
     data = np.load(os.path.join(data_path, DATA_FILENAME + '.npy'))
 
-    if num_signals is None:
+    if num_signals == 'all':
         NUM_SIGNALS = data.shape[0]
     else:
         NUM_SIGNALS = num_signals
