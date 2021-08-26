@@ -85,11 +85,41 @@ def binary2decimal(binary_array, packet_len):
     return decimal_array
 
 
-def grayCode(n):
+def decimal2binary(decimal_array, packet_len):
+    binary_array = np.zeros((decimal_messages.shape[0], decimal_messages.shape[1] * packet_len), dtype=np.uint8)
+
+    for i in range(decimal_array.shape[0]):
+        for j in range(decimal_array.shape[1]):
+            packet = [int(x) for x in list('{0:0b}'.format(decimal_array[i, j]))]
+
+            # padd with zeros
+            while len(packet) < packet_len:
+                packet.insert(0, 0)
+
+            binary_array[i, j * packet_len: (j + 1) * packet_len] = packet
+
+    return binary_array
+
+
+def gray_code(n):
     # Right Shift the number
     # by 1 taking xor with
     # original number
     return n ^ (n >> 1)
+
+
+def docode_gray_code(gray_array, n_digits):
+    code_dict = {}
+    for i in range(2 ** n_digits):
+        code_dict[gray_code(i)] = i
+
+    decoded_array = np.zeros_like(gray_array)
+
+    for i in range(gray_array.shape[0]):
+        for j in range(gray_array.shape[1]):
+            decoded_array[i, j] = code_dict[gray_array[i, j]]
+
+    return decoded_array
 
 
 if __name__ == '__main__':
@@ -99,7 +129,15 @@ if __name__ == '__main__':
     binary_messages = generate_binary_messages(num_bits=num_packets * packet_len, num_messages=num_messages)
     decimal_messages = binary2decimal(binary_messages, packet_len)
 
-    gray_decimal_messages = grayCode(decimal_messages)
+    recovered_binary_messages = decimal2binary(decimal_messages, packet_len)
+
+    assert recovered_binary_messages.all() == binary_messages.all()
+
+    gray_decimal_messages = gray_code(decimal_messages)
+
+    recovered_decimal_messages = docode_gray_code(gray_decimal_messages, packet_len)
+
+    assert recovered_decimal_messages.all() == decimal_messages.all()
 
     for i in range(2 ** packet_len):
-        print(i, grayCode(i))
+        print(i, gray_code(i))
