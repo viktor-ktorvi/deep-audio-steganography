@@ -9,8 +9,7 @@ from matplotlib import pyplot as plt
 
 from utils.data_loading import get_inference_data
 from utils.accuracy import pass_data_through, calc_mean_accuracy
-from utils.delete_all_files_in_folder import delete_all_files_in_folder
-from utils.inference_utils import signal_to_noise_ratio, load_saved_model, log_intensity
+from utils.inference_utils import signal_to_noise_ratio, load_saved_model, log_intensity, delete_all_files_in_folder
 
 from constants.paths import SAVE_MODELS_PATH, MODEL_PARAMETERS_FOLDER, INFERENCE_DATA_FOLDER, INFERENCE_RESULTS_FOLDER, \
     STEGANOGRAPHIC_AUDIO_FOLDER, ORIGINAL_AUDIO_FOLDER

@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import json
 import os
+import glob
 
 from network_modules.autoencoder import AutoEncoder
 
@@ -40,3 +41,8 @@ def load_saved_model(save_models_path, model_to_load, model_name, model_extensio
 
 def log_intensity(Sxx, k):
     return np.log(1 + k * Sxx)
+
+def delete_all_files_in_folder(PATH):
+    files = glob.glob(os.path.join(PATH, '*'))
+    for f in files:
+        os.remove(f)
