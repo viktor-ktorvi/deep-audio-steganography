@@ -72,9 +72,34 @@ def generate_binary_messages(num_bits, num_messages):
     return np.random.randint(low=0, high=2, size=(num_messages, num_bits))
 
 
+def binary2decimal(binary_array, packet_len):
+    # careful of the //
+    decimal_array = np.zeros((binary_array.shape[0], binary_array.shape[1] // packet_len), dtype=np.uint32)
+
+    # terrible triple, effectivly double loop
+    for i in range(decimal_array.shape[0]):
+        for j in range(decimal_array.shape[1]):
+            packet = binary_array[i, j * packet_len:(j + 1) * packet_len]
+            decimal_array[i, j] = int("".join(str(x) for x in packet), 2)
+
+    return decimal_array
+
+
+def grayCode(n):
+    # Right Shift the number
+    # by 1 taking xor with
+    # original number
+    return n ^ (n >> 1)
+
 
 if __name__ == '__main__':
     num_packets = 120
     packet_len = 4
     num_messages = 27
     binary_messages = generate_binary_messages(num_bits=num_packets * packet_len, num_messages=num_messages)
+    decimal_messages = binary2decimal(binary_messages, packet_len)
+
+    gray_decimal_messages = grayCode(decimal_messages)
+
+    for i in range(2 ** packet_len):
+        print(i, grayCode(i))
