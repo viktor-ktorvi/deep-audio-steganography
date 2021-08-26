@@ -68,5 +68,13 @@ def get_inference_data(data_path, num_signals='all', high=HIGH,
     return tensor_dataset
 
 
+def generate_binary_messages(num_bits, num_messages):
+    return np.random.randint(low=0, high=2, size=(num_messages, num_bits))
+
+
+
 if __name__ == '__main__':
-    pass
+    num_packets = 120
+    packet_len = 4
+    num_messages = 27
+    binary_messages = generate_binary_messages(num_bits=num_packets * packet_len, num_messages=num_messages)
