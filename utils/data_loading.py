@@ -5,44 +5,33 @@ from torch.utils.data import TensorDataset
 
 from constants.paths import TRAIN_DATA_PATH, DATA_FILENAME
 from constants.constants import HOLDOUT_RATIO
-from constants.parameters import MESSAGE_LEN, BOTTLENECK_CHANNEL_SIZE, HIGH
 
 DATA_PATH = TRAIN_DATA_PATH
 DATASET_NAME = 'birds'
 
 
-def reshape_messages(messages, bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE):
+def reshape_messages(messages, bottleneck_channel_size):
     NUM_MESSAGES = messages.shape[0]
     LEN_MESSAGES = messages.shape[1]
     messages_reshaped = messages.reshape(NUM_MESSAGES, 1, LEN_MESSAGES)
     return np.broadcast_to(messages_reshaped, (NUM_MESSAGES, bottleneck_channel_size, LEN_MESSAGES))
 
 
-# TODO HIGH really should be a local variable
-
-def scale_messages(messages, high=HIGH):
-    return messages / high - (high - 1) / 2 / high
-
-
-def inverse_scale_messages(messages, high=HIGH):
-    return (messages + (high - 1) / 2 / high) * high
-
-
-def get_dataset(high=HIGH, bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE):
+def get_dataset(num_packets, packet_len, bottleneck_channel_size):
     data = np.load(os.path.join(DATA_PATH, DATASET_NAME, DATA_FILENAME + '.npy'))
 
     NUM_SIGNALS = data.shape[0]
-
     TRAIN_NUM = round(HOLDOUT_RATIO * NUM_SIGNALS)
     TEST_NUM = NUM_SIGNALS - TRAIN_NUM
     VAL_NUM = round(TEST_NUM / 2)
     TEST_NUM -= VAL_NUM
 
-    messages = np.random.randint(low=0, high=high, size=(NUM_SIGNALS, MESSAGE_LEN))
-    messages = scale_messages(messages, high=high)
-    messages_reshaped = reshape_messages(messages, bottleneck_channel_size=bottleneck_channel_size)
+    binary_messages = generate_binary_messages(num_bits=num_packets * packet_len, num_messages=NUM_SIGNALS)
+    preprocessed_messages = preprocess_messages(binary_messages, packet_len)
+    messages_reshaped = reshape_messages(preprocessed_messages, bottleneck_channel_size=bottleneck_channel_size)
 
-    tensor_dataset = TensorDataset(torch.tensor(data), torch.tensor(messages), torch.tensor(messages_reshaped))
+    tensor_dataset = TensorDataset(torch.tensor(data), torch.tensor(preprocessed_messages),
+                                   torch.tensor(messages_reshaped))
 
     train_set, validation_and_testing = torch.utils.data.random_split(tensor_dataset, [TRAIN_NUM, TEST_NUM + VAL_NUM])
     test_set, validation_set = torch.utils.data.random_split(validation_and_testing, [TEST_NUM, VAL_NUM])
@@ -50,8 +39,7 @@ def get_dataset(high=HIGH, bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE):
     return train_set, validation_set, test_set
 
 
-def get_inference_data(data_path, num_signals='all', high=HIGH,
-                       bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE, message_len=MESSAGE_LEN):
+def get_inference_data(data_path, high, bottleneck_channel_size, num_packets, num_signals='all'):
     data = np.load(os.path.join(data_path, DATA_FILENAME + '.npy'))
 
     if num_signals == 'all':
@@ -59,13 +47,42 @@ def get_inference_data(data_path, num_signals='all', high=HIGH,
     else:
         NUM_SIGNALS = num_signals
 
-    messages = np.random.randint(low=0, high=high, size=(NUM_SIGNALS, message_len))
+    messages = np.random.randint(low=0, high=high, size=(NUM_SIGNALS, num_packets))
     messages = scale_messages(messages, high=high)
     messages_reshaped = reshape_messages(messages, bottleneck_channel_size=bottleneck_channel_size)
 
     tensor_dataset = TensorDataset(torch.tensor(data), torch.tensor(messages), torch.tensor(messages_reshaped))
 
     return tensor_dataset
+
+
+# TODO napraviti tako da za high=2 bude -0.5, 0.5 i da uvek bude izmedju -0.5 i 0.5
+#  ili -1 i 1
+def scale_messages(messages, high):
+    return messages / high - (high - 1) / 2 / high
+
+
+def inverse_scale_messages(messages, high):
+    return (messages + (high - 1) / 2 / high) * high
+
+
+def preprocess_messages(binary_messages, packet_len):
+    decimal_messages = binary2decimal(binary_messages, packet_len)
+    gray_decimal_messages = gray_code(decimal_messages)
+    scaled_gray_decimal_messages = scale_messages(messages=gray_decimal_messages, high=2 ** packet_len)
+
+    return scaled_gray_decimal_messages
+
+
+def postprocess_messages(reconstructed_messages, packet_len):
+    reconstructed_gray_messages = inverse_scale_messages(reconstructed_messages, high=2 ** packet_len)
+    reconstructed_gray_messages = np.clip(reconstructed_gray_messages, 0, 2 ** packet_len - 1)
+    reconstructed_gray_messages = np.round(reconstructed_gray_messages).astype(np.int32)
+
+    reconstructed_decimal_messages = docode_gray_code(reconstructed_gray_messages, packet_len).astype(np.int32)
+    reconstructed_binary_messages = decimal2binary(reconstructed_decimal_messages, packet_len)
+
+    return reconstructed_binary_messages
 
 
 def generate_binary_messages(num_bits, num_messages):
@@ -86,7 +103,7 @@ def binary2decimal(binary_array, packet_len):
 
 
 def decimal2binary(decimal_array, packet_len):
-    binary_array = np.zeros((decimal_messages.shape[0], decimal_messages.shape[1] * packet_len), dtype=np.uint8)
+    binary_array = np.zeros((decimal_array.shape[0], decimal_array.shape[1] * packet_len), dtype=np.uint8)
 
     for i in range(decimal_array.shape[0]):
         for j in range(decimal_array.shape[1]):
@@ -124,20 +141,14 @@ def docode_gray_code(gray_array, n_digits):
 
 if __name__ == '__main__':
     num_packets = 120
-    packet_len = 4
+    packet_len = 5
     num_messages = 27
+
     binary_messages = generate_binary_messages(num_bits=num_packets * packet_len, num_messages=num_messages)
-    decimal_messages = binary2decimal(binary_messages, packet_len)
+    preprocessed_messages = preprocess_messages(binary_messages, packet_len)
 
-    recovered_binary_messages = decimal2binary(decimal_messages, packet_len)
+    reconstructed_binary_messages = postprocess_messages(preprocessed_messages, packet_len)
 
-    assert recovered_binary_messages.all() == binary_messages.all()
+    assert binary_messages.all() == reconstructed_binary_messages.all()
 
-    gray_decimal_messages = gray_code(decimal_messages)
-
-    recovered_decimal_messages = docode_gray_code(gray_decimal_messages, packet_len)
-
-    assert recovered_decimal_messages.all() == decimal_messages.all()
-
-    for i in range(2 ** packet_len):
-        print(i, gray_code(i))
+    print(np.unique(preprocessed_messages))

@@ -2,8 +2,7 @@ import torch
 from torch import nn
 
 from utils.sizes import Conv1DLayerSizes, LinearLayerSizes
-from constants.constants import CHANNELS, KERNELS, SIGNAL_LEN, DEVICE
-from constants.parameters import MESSAGE_LEN
+from constants.constants import CHANNELS, KERNELS, SIGNAL_LEN
 
 
 class Decoder(nn.Module):

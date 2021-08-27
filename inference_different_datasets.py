@@ -60,7 +60,7 @@ if __name__ == '__main__':
         message_len = training_parameters['MESSAGE_LEN']
 
         model = AutoEncoder(strides=strides, bottleneck_channel_size=bottleneck_channel_size,
-                            message_len=message_len).to(
+                            num_packets=message_len).to(
             DEVICE)
         model.load_state_dict(torch.load(MODEL_PATH))
 
@@ -69,7 +69,7 @@ if __name__ == '__main__':
                                   num_signals=None,
                                   high=training_parameters['HIGH'],
                                   bottleneck_channel_size=training_parameters['BOTTLENECK_CHANNEL_SIZE'],
-                                  message_len=message_len)
+                                  num_packets=message_len)
 
         dataloader = DataLoader(data, batch_size=len(data), shuffle=False)
         with torch.no_grad():

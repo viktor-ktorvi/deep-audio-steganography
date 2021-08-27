@@ -1,26 +1,40 @@
-import torch
-from torch.utils.data import DataLoader
-import numpy as np
-from tqdm import tqdm
-from matplotlib import pyplot as plt
-from pathlib import Path
 import os
+from pathlib import Path
+
+import numpy as np
+import torch
+from matplotlib import pyplot as plt
 from scipy.io.wavfile import write
+from torch.utils.data import DataLoader
+from tqdm import tqdm
 
-from utils.data_loading import get_dataset
-from utils.accuracy import pass_data_through, calc_accuracy
-
-from constants.parameters import BATCH_SIZE, LEARNING_RATE, NUM_EPOCHS, save_parameters, BOTTLENECK_CHANNEL_SIZE, HIGH, \
-    MESSAGE_LEN, STRIDES
 from constants.constants import DEVICE, FS
-from constants.paths import SAVE_MODELS_PATH, MODEL_NAME, MODEL_EXTENSION, MODEL_PATH, ORIGINAL_AUDIO_PATH, \
-    STEGANOGRAPHIC_AUDIO_PATH, MODEL_PARAMETERS_PATH
-
-from network_modules.autoencoder import AutoEncoder
+from constants.paths import SAVE_MODELS_PATH, MODEL_NAME, MODEL_EXTENSION, AUDIO_FOLDER, ORIGINAL_AUDIO_FOLDER, \
+    STEGANOGRAPHIC_AUDIO_FOLDER, MODEL_PARAMETERS_FOLDER
 from loss.autoencoder_loss import AutoEncoderLoss
+from network_modules.autoencoder import AutoEncoder
+from utils.accuracy import pass_data_through, calc_accuracy
+from utils.data_loading import get_dataset
+from utils.train_utils import save_parameters
 
 VALIDATION_BATCH_SIZE = 100
 WAV_SAVING_NUM = 30
+
+PACKET_LEN = 5
+NUM_PACKETS = 64
+
+STRIDES = [8, 8, 4]
+BOTTLENECK_CHANNEL_SIZE = 25
+BATCH_SIZE = 64
+NUM_EPOCHS = 50
+LEARNING_RATE = 0.00005
+
+TRAINING_PARAMETERS_JSON = 'training parameters.json'
+MODEL_FOLDER_NAME = str(NUM_PACKETS) + ' x ' + str(PACKET_LEN) + ' bit'
+MODEL_PATH = os.path.join(SAVE_MODELS_PATH, MODEL_FOLDER_NAME)
+ORIGINAL_AUDIO_PATH = os.path.join(MODEL_PATH, AUDIO_FOLDER, ORIGINAL_AUDIO_FOLDER)
+STEGANOGRAPHIC_AUDIO_PATH = os.path.join(MODEL_PATH, AUDIO_FOLDER, STEGANOGRAPHIC_AUDIO_FOLDER)
+MODEL_PARAMETERS_PATH = os.path.join(MODEL_PATH, MODEL_PARAMETERS_FOLDER)
 
 if __name__ == '__main__':
     # %% Seeds
@@ -30,7 +44,8 @@ if __name__ == '__main__':
 
     # %% Loading the data
     # TODO normalizing seems to make it worse, why? See what people who work with timeseries' do.
-    train_set, validation_set, test_set = get_dataset(high=HIGH, bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE)
+    train_set, validation_set, test_set = get_dataset(num_packets=NUM_PACKETS, packet_len=PACKET_LEN,
+                                                      bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE)
     train_dataloader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True)
 
     train_std, train_mean = torch.std_mean(train_set.dataset.tensors[0], unbiased=False)
@@ -39,7 +54,7 @@ if __name__ == '__main__':
     # %% Model and optimizer
 
     autoencoder = AutoEncoder(strides=STRIDES, bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE,
-                              message_len=MESSAGE_LEN).to(DEVICE)
+                              num_packets=NUM_PACKETS).to(DEVICE)
 
     criterion = AutoEncoderLoss()
 
@@ -85,10 +100,10 @@ if __name__ == '__main__':
             validation_dataloader = DataLoader(validation_set, batch_size=VALIDATION_BATCH_SIZE, shuffle=True)
             train_test_dataloader = DataLoader(train_set, batch_size=VALIDATION_BATCH_SIZE, shuffle=True)
 
-            val_acc = calc_accuracy(autoencoder, validation_dataloader, high=HIGH, device=DEVICE)
+            val_acc = calc_accuracy(autoencoder, validation_dataloader, packet_len=PACKET_LEN, device=DEVICE)
             val_acc_array.append(val_acc)
 
-            train_acc = calc_accuracy(autoencoder, train_test_dataloader, high=HIGH, device=DEVICE)
+            train_acc = calc_accuracy(autoencoder, train_test_dataloader, packet_len=PACKET_LEN, device=DEVICE)
             train_acc_array.append(train_acc)
 
         print("\ne: {:<20}ta: {:<20.2f}va: {:<20.2f} {:<20.3f}".format(epoch, train_acc, val_acc, encoder_running_loss))
@@ -116,7 +131,7 @@ if __name__ == '__main__':
     with torch.no_grad():
         test_dataloader = DataLoader(test_set, batch_size=len(test_set), shuffle=True)
 
-        test_acc = calc_accuracy(autoencoder, test_dataloader, high=HIGH, device=DEVICE)
+        test_acc = calc_accuracy(autoencoder, test_dataloader, packet_len=PACKET_LEN, device=DEVICE)
         print('\nTest accuracy is {:2.2f} %'.format(100 * test_acc))
 
     print('\nSaving data...')
@@ -130,7 +145,15 @@ if __name__ == '__main__':
     torch.save(autoencoder.state_dict(),
                os.path.join(MODEL_PATH, MODEL_NAME + MODEL_EXTENSION))
 
-    save_parameters(MODEL_PARAMETERS_PATH)
+    params = {
+        'NUM_PACKETS': NUM_PACKETS,
+        'BOTTLENECK_CHANNEL_SIZE': BOTTLENECK_CHANNEL_SIZE,
+        'BATCH_SIZE': BATCH_SIZE,
+        'NUM_EPOCHS': NUM_EPOCHS,
+        'LEARNING_RATE': LEARNING_RATE,
+        'STRIDES': STRIDES
+    }
+    save_parameters(os.path.join(MODEL_PARAMETERS_PATH, TRAINING_PARAMETERS_JSON), params)
 
     # np.save(os.path.join(MODEL_PARAMETERS_PATH, 'strides.npy'), STRIDES)
 

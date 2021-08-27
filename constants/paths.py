@@ -1,6 +1,4 @@
 import os
-from constants.parameters import MESSAGE_LEN, HIGH
-import numpy as np
 
 DATA_FILENAME = 'audio_data'
 PRETRAINED_MODELS_PATH = 'waveGAN_models'
@@ -9,7 +7,6 @@ INFERENCE_DATA_FOLDER = 'inference data'
 INFERENCE_RESULTS_FOLDER = 'inference results'
 
 SAVE_MODELS_PATH = 'saved models'
-MODEL_FOLDER_NAME = str(MESSAGE_LEN) + ' x ' + str(np.log2(HIGH)) + ' bit'
 MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
 
@@ -18,7 +15,3 @@ ORIGINAL_AUDIO_FOLDER = 'original'
 STEGANOGRAPHIC_AUDIO_FOLDER = 'steganographic'
 MODEL_PARAMETERS_FOLDER = 'parameters'
 
-MODEL_PATH = os.path.join(SAVE_MODELS_PATH, MODEL_FOLDER_NAME)
-ORIGINAL_AUDIO_PATH = os.path.join(MODEL_PATH, AUDIO_FOLDER, ORIGINAL_AUDIO_FOLDER)
-STEGANOGRAPHIC_AUDIO_PATH = os.path.join(MODEL_PATH, AUDIO_FOLDER, STEGANOGRAPHIC_AUDIO_FOLDER)
-MODEL_PARAMETERS_PATH = os.path.join(MODEL_PATH, MODEL_PARAMETERS_FOLDER)

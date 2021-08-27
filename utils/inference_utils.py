@@ -33,7 +33,7 @@ def load_saved_model(save_models_path, model_to_load, model_name, model_extensio
     bottleneck_channel_size = training_parameters['BOTTLENECK_CHANNEL_SIZE']
     message_len = training_parameters['MESSAGE_LEN']
 
-    model = AutoEncoder(strides=strides, bottleneck_channel_size=bottleneck_channel_size, message_len=message_len)
+    model = AutoEncoder(strides=strides, bottleneck_channel_size=bottleneck_channel_size, num_packets=message_len)
     model.load_state_dict(torch.load(MODEL_PATH))
 
     return model, training_parameters
