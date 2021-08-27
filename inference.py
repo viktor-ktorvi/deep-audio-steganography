@@ -13,12 +13,12 @@ from utils.train_utils import pass_data_through
 from utils.accuracy import calc_mean_accuracy
 
 from constants.paths import SAVE_MODELS_PATH, MODEL_PARAMETERS_FOLDER, INFERENCE_DATA_FOLDER, INFERENCE_RESULTS_FOLDER, \
-    STEGANOGRAPHIC_AUDIO_FOLDER, ORIGINAL_AUDIO_FOLDER
+    STEGANOGRAPHIC_AUDIO_FOLDER, ORIGINAL_AUDIO_FOLDER, DATA_FILENAME
 from constants.constants import DEVICE, FS
 
 from train import TRAINING_PARAMETERS_JSON
 
-MODEL_TO_LOAD = '64 x 1 bit'
+MODEL_TO_LOAD = '512 x 4 bit'
 MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
 DATASET = 'birds'
@@ -32,7 +32,6 @@ NUM_BINS = 30
 
 NUM_WORST = 10
 NUM_BEST = 10
-# DEVICE = 'cpu'
 
 SMALL_SIZE = 18
 MEDIUM_SIZE = 18
@@ -67,7 +66,7 @@ if __name__ == '__main__':
     # %% Loading data
 
     inference_data_parameters = {
-        'data_file_path': os.path.join(INFERENCE_DATA_FOLDER, DATASET),
+        'data_file_path': os.path.join(INFERENCE_DATA_FOLDER, DATASET, DATA_FILENAME + '.npy'),
         'num_packets': training_parameters['NUM_PACKETS'],
         'packet_len': training_parameters['PACKET_LEN'],
         'bottleneck_channel_size': training_parameters['BOTTLENECK_CHANNEL_SIZE']

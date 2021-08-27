@@ -1,28 +1,31 @@
 import os
-import json
 import numpy as np
 import torch
+from scipy.io.wavfile import write
+from scipy.signal import spectrogram
+from pathlib import Path
 from torch.utils.data import DataLoader
 from matplotlib import pyplot as plt
 
-from network_modules.autoencoder import AutoEncoder
-from utils.data_loading import get_inference_data
-from utils.accuracy import pass_data_through, calc_mean_accuracy
+from utils.data_loading import get_dataset
+from utils.inference_utils import signal_to_noise_ratio, load_saved_model, log_intensity, delete_all_files_in_folder
+from utils.train_utils import pass_data_through
+from utils.accuracy import calc_mean_accuracy
 
-from constants.paths import SAVE_MODELS_PATH, MODEL_PARAMETERS_FOLDER, INFERENCE_DATA_FOLDER
-from constants.parameters import TRAINING_PARAMETERS_JSON
-from constants.constants import DEVICE
+from constants.paths import SAVE_MODELS_PATH, MODEL_PARAMETERS_FOLDER, INFERENCE_DATA_FOLDER, INFERENCE_RESULTS_FOLDER, \
+    STEGANOGRAPHIC_AUDIO_FOLDER, ORIGINAL_AUDIO_FOLDER, DATA_FILENAME
+from constants.constants import DEVICE, FS
 
-MODEL_TO_LOAD = '512 x 4.0 bit'
+from train import TRAINING_PARAMETERS_JSON
+
+MODEL_TO_LOAD = '512 x 4 bit'
 MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
+
 DATASETS = ['birds', 'piano', 'drums', 'speech', 'digits']
 
 NUM_BINS = 30
 
-# SMALL_SIZE = 14
-# MEDIUM_SIZE = 15
-# BIGGER_SIZE = 16
 from inference import SMALL_SIZE, MEDIUM_SIZE, BIGGER_SIZE
 
 if __name__ == '__main__':
@@ -45,31 +48,26 @@ if __name__ == '__main__':
     median_snrs = []
     for dataset in DATASETS:
         # %% Loading parameters and the model
-        MODEL_FOLDER_PATH = os.path.join(SAVE_MODELS_PATH, MODEL_TO_LOAD)
-        MODEL_PATH = os.path.join(MODEL_FOLDER_PATH, MODEL_NAME + MODEL_EXTENSION)
-        PARAMETERS_PATH = os.path.join(MODEL_FOLDER_PATH, MODEL_PARAMETERS_FOLDER)
-        INFERENCE_DATA_PATH = os.path.join(INFERENCE_DATA_FOLDER, dataset)
+        model_paths = {
+            'save_models_path': SAVE_MODELS_PATH,
+            'model_to_load': MODEL_TO_LOAD,
+            'model_name': MODEL_NAME,
+            'model_extension': MODEL_EXTENSION,
+            'model_parameters_folder': MODEL_PARAMETERS_FOLDER,
+            'training_parameters_json': TRAINING_PARAMETERS_JSON
+        }
 
-        f = open(os.path.join(PARAMETERS_PATH, TRAINING_PARAMETERS_JSON))
-        training_parameters = json.load(f)
-        f.close()
-
-        # TODO Really should be saving all the parameters as one json so that I can just pass them in as a dict
-        strides = np.load(os.path.join(PARAMETERS_PATH, 'strides.npy'))
-        bottleneck_channel_size = training_parameters['BOTTLENECK_CHANNEL_SIZE']
-        message_len = training_parameters['MESSAGE_LEN']
-
-        model = AutoEncoder(strides=strides, bottleneck_channel_size=bottleneck_channel_size,
-                            num_packets=message_len).to(
-            DEVICE)
-        model.load_state_dict(torch.load(MODEL_PATH))
-
+        model, training_parameters = load_saved_model(**model_paths)
+        model = model.to(DEVICE)
         # %% Loading data
-        data = get_inference_data(data_path=INFERENCE_DATA_PATH,
-                                  num_signals=None,
-                                  high=training_parameters['HIGH'],
-                                  bottleneck_channel_size=training_parameters['BOTTLENECK_CHANNEL_SIZE'],
-                                  num_packets=message_len)
+        inference_data_parameters = {
+            'data_file_path': os.path.join(INFERENCE_DATA_FOLDER, dataset, DATA_FILENAME + '.npy'),
+            'num_packets': training_parameters['NUM_PACKETS'],
+            'packet_len': training_parameters['PACKET_LEN'],
+            'bottleneck_channel_size': training_parameters['BOTTLENECK_CHANNEL_SIZE']
+        }
+
+        data = get_dataset(**inference_data_parameters)
 
         dataloader = DataLoader(data, batch_size=len(data), shuffle=False)
         with torch.no_grad():
@@ -79,8 +77,8 @@ if __name__ == '__main__':
         modified_audio = modified_audio.squeeze()
 
         # %% Accuracy
-        test_acc = calc_mean_accuracy(reconstructed_messages, original_messages, high=training_parameters['HIGH'])
-
+        test_acc = calc_mean_accuracy(original_messages, reconstructed_messages,
+                                      packet_len=training_parameters['PACKET_LEN'])
         print("Test accuracy for {:s} is {:3.2f} %".format(dataset, test_acc * 100))
 
         # %% SNR
