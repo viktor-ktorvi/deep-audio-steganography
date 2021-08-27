@@ -10,17 +10,20 @@ from tqdm import tqdm
 
 from constants.constants import DEVICE, FS
 from constants.paths import SAVE_MODELS_PATH, MODEL_NAME, MODEL_EXTENSION, AUDIO_FOLDER, ORIGINAL_AUDIO_FOLDER, \
-    STEGANOGRAPHIC_AUDIO_FOLDER, MODEL_PARAMETERS_FOLDER
+    STEGANOGRAPHIC_AUDIO_FOLDER, MODEL_PARAMETERS_FOLDER, TRAIN_DATA_PATH, DATA_FILENAME
 from loss.autoencoder_loss import AutoEncoderLoss
 from network_modules.autoencoder import AutoEncoder
 from utils.accuracy import pass_data_through, calc_accuracy
-from utils.data_loading import get_dataset
+from utils.data_loading import get_dataset, split_dataset
 from utils.train_utils import save_parameters
+
+DATASET_NAME = 'birds'
+HOLDOUT_RATIO = 0.8
 
 VALIDATION_BATCH_SIZE = 100
 WAV_SAVING_NUM = 30
 
-PACKET_LEN = 5
+PACKET_LEN = 1
 NUM_PACKETS = 64
 
 STRIDES = [8, 8, 4]
@@ -44,8 +47,16 @@ if __name__ == '__main__':
 
     # %% Loading the data
     # TODO normalizing seems to make it worse, why? See what people who work with timeseries' do.
-    train_set, validation_set, test_set = get_dataset(num_packets=NUM_PACKETS, packet_len=PACKET_LEN,
-                                                      bottleneck_channel_size=BOTTLENECK_CHANNEL_SIZE)
+
+    dataset_parameters = {
+        'data_file_path': os.path.join(TRAIN_DATA_PATH, DATASET_NAME, DATA_FILENAME + '.npy'),
+        'num_packets': NUM_PACKETS,
+        'packet_len': PACKET_LEN,
+        'bottleneck_channel_size': BOTTLENECK_CHANNEL_SIZE
+    }
+
+    tensor_dataset = get_dataset(**dataset_parameters)
+    train_set, validation_set, test_set = split_dataset(tensor_dataset, holdout_ratio=HOLDOUT_RATIO)
     train_dataloader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True)
 
     train_std, train_mean = torch.std_mean(train_set.dataset.tensors[0], unbiased=False)

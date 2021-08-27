@@ -1,13 +1,6 @@
-import os
 import numpy as np
 import torch
 from torch.utils.data import TensorDataset
-
-from constants.paths import TRAIN_DATA_PATH, DATA_FILENAME
-from constants.constants import HOLDOUT_RATIO
-
-DATA_PATH = TRAIN_DATA_PATH
-DATASET_NAME = 'birds'
 
 
 def reshape_messages(messages, bottleneck_channel_size):
@@ -17,43 +10,28 @@ def reshape_messages(messages, bottleneck_channel_size):
     return np.broadcast_to(messages_reshaped, (NUM_MESSAGES, bottleneck_channel_size, LEN_MESSAGES))
 
 
-def get_dataset(num_packets, packet_len, bottleneck_channel_size):
-    data = np.load(os.path.join(DATA_PATH, DATASET_NAME, DATA_FILENAME + '.npy'))
-
+def get_dataset(data_file_path, num_packets, packet_len, bottleneck_channel_size):
+    data = np.load(data_file_path)
     NUM_SIGNALS = data.shape[0]
-    TRAIN_NUM = round(HOLDOUT_RATIO * NUM_SIGNALS)
-    TEST_NUM = NUM_SIGNALS - TRAIN_NUM
-    VAL_NUM = round(TEST_NUM / 2)
-    TEST_NUM -= VAL_NUM
 
     binary_messages = generate_binary_messages(num_bits=num_packets * packet_len, num_messages=NUM_SIGNALS)
     preprocessed_messages = preprocess_messages(binary_messages, packet_len)
     messages_reshaped = reshape_messages(preprocessed_messages, bottleneck_channel_size=bottleneck_channel_size)
 
-    tensor_dataset = TensorDataset(torch.tensor(data), torch.tensor(preprocessed_messages),
-                                   torch.tensor(messages_reshaped))
+    return TensorDataset(torch.tensor(data), torch.tensor(preprocessed_messages), torch.tensor(messages_reshaped))
+
+
+def split_dataset(tensor_dataset, holdout_ratio):
+    NUM_SIGNALS = len(tensor_dataset)
+    TRAIN_NUM = round(holdout_ratio * NUM_SIGNALS)
+    TEST_NUM = NUM_SIGNALS - TRAIN_NUM
+    VAL_NUM = round(TEST_NUM / 2)
+    TEST_NUM -= VAL_NUM
 
     train_set, validation_and_testing = torch.utils.data.random_split(tensor_dataset, [TRAIN_NUM, TEST_NUM + VAL_NUM])
     test_set, validation_set = torch.utils.data.random_split(validation_and_testing, [TEST_NUM, VAL_NUM])
 
     return train_set, validation_set, test_set
-
-
-def get_inference_data(data_path, high, bottleneck_channel_size, num_packets, num_signals='all'):
-    data = np.load(os.path.join(data_path, DATA_FILENAME + '.npy'))
-
-    if num_signals == 'all':
-        NUM_SIGNALS = data.shape[0]
-    else:
-        NUM_SIGNALS = num_signals
-
-    messages = np.random.randint(low=0, high=high, size=(NUM_SIGNALS, num_packets))
-    messages = scale_messages(messages, high=high)
-    messages_reshaped = reshape_messages(messages, bottleneck_channel_size=bottleneck_channel_size)
-
-    tensor_dataset = TensorDataset(torch.tensor(data), torch.tensor(messages), torch.tensor(messages_reshaped))
-
-    return tensor_dataset
 
 
 # TODO napraviti tako da za high=2 bude -0.5, 0.5 i da uvek bude izmedju -0.5 i 0.5
