@@ -18,7 +18,7 @@ from constants.constants import DEVICE, FS
 
 from train import TRAINING_PARAMETERS_JSON
 
-MODEL_TO_LOAD = '512 x 4 bit'
+MODEL_TO_LOAD = '64 x 1 bit mixed'
 MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
 DATASET = 'birds'

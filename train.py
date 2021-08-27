@@ -10,29 +10,31 @@ from tqdm import tqdm
 
 from constants.constants import DEVICE, FS
 from constants.paths import SAVE_MODELS_PATH, MODEL_NAME, MODEL_EXTENSION, AUDIO_FOLDER, ORIGINAL_AUDIO_FOLDER, \
-    STEGANOGRAPHIC_AUDIO_FOLDER, MODEL_PARAMETERS_FOLDER, TRAIN_DATA_PATH, DATA_FILENAME, TRAINING_PARAMETERS_JSON
+    STEGANOGRAPHIC_AUDIO_FOLDER, MODEL_PARAMETERS_FOLDER, TRAIN_DATA_PATH, DATA_FILENAME, TRAINING_PARAMETERS_JSON, \
+    MERGED_DATASET, MIXED_DATA_FOLDER
 from loss.autoencoder_loss import AutoEncoderLoss
 from network_modules.autoencoder import AutoEncoder
 from utils.accuracy import pass_data_through, calc_accuracy
 from utils.data_loading import get_dataset, split_dataset
 from utils.train_utils import save_parameters
 
-DATASET_NAME = 'birds'
-HOLDOUT_RATIO = 0.8
+DATASET_NAME = MERGED_DATASET
+DATA_PATH = MIXED_DATA_FOLDER
+HOLDOUT_RATIO = 0.95
 
 VALIDATION_BATCH_SIZE = 100
 WAV_SAVING_NUM = 30
 
-PACKET_LEN = 4
-NUM_PACKETS = 512
+PACKET_LEN = 1
+NUM_PACKETS = 64
 
-STRIDES = [4, 4, 2]
+STRIDES = [8, 8, 4]
 BOTTLENECK_CHANNEL_SIZE = 25
 BATCH_SIZE = 64
 NUM_EPOCHS = 100
 LEARNING_RATE = 0.00005
 
-MODEL_FOLDER_NAME = str(NUM_PACKETS) + ' x ' + str(PACKET_LEN) + ' bit'
+MODEL_FOLDER_NAME = str(NUM_PACKETS) + ' x ' + str(PACKET_LEN) + ' bit mixed'
 MODEL_PATH = os.path.join(SAVE_MODELS_PATH, MODEL_FOLDER_NAME)
 ORIGINAL_AUDIO_PATH = os.path.join(MODEL_PATH, AUDIO_FOLDER, ORIGINAL_AUDIO_FOLDER)
 STEGANOGRAPHIC_AUDIO_PATH = os.path.join(MODEL_PATH, AUDIO_FOLDER, STEGANOGRAPHIC_AUDIO_FOLDER)
@@ -48,7 +50,7 @@ if __name__ == '__main__':
     # TODO normalizing seems to make it worse, why? See what people who work with timeseries' do.
 
     dataset_parameters = {
-        'data_file_path': os.path.join(TRAIN_DATA_PATH, DATASET_NAME, DATA_FILENAME + '.npy'),
+        'data_file_path': os.path.join(DATA_PATH, DATASET_NAME, DATA_FILENAME + '.npy'),
         'num_packets': NUM_PACKETS,
         'packet_len': PACKET_LEN,
         'bottleneck_channel_size': BOTTLENECK_CHANNEL_SIZE
