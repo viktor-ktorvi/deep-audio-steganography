@@ -7,16 +7,18 @@ from pathlib import Path
 from torch.utils.data import DataLoader
 from matplotlib import pyplot as plt
 
-from utils.data_loading import get_inference_data
-from utils.accuracy import pass_data_through, calc_mean_accuracy
+from utils.data_loading import get_dataset
 from utils.inference_utils import signal_to_noise_ratio, load_saved_model, log_intensity, delete_all_files_in_folder
+from utils.train_utils import pass_data_through
+from utils.accuracy import calc_mean_accuracy
 
 from constants.paths import SAVE_MODELS_PATH, MODEL_PARAMETERS_FOLDER, INFERENCE_DATA_FOLDER, INFERENCE_RESULTS_FOLDER, \
     STEGANOGRAPHIC_AUDIO_FOLDER, ORIGINAL_AUDIO_FOLDER
-from constants.parameters import TRAINING_PARAMETERS_JSON
 from constants.constants import DEVICE, FS
 
-MODEL_TO_LOAD = '512 x 4.0 bit'
+from train import TRAINING_PARAMETERS_JSON
+
+MODEL_TO_LOAD = '64 x 1 bit'
 MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
 DATASET = 'birds'
@@ -65,14 +67,13 @@ if __name__ == '__main__':
     # %% Loading data
 
     inference_data_parameters = {
-        'data_path': os.path.join(INFERENCE_DATA_FOLDER, DATASET),
-        'num_signals': 'all',
-        'high': training_parameters['HIGH'],
-        'bottleneck_channel_size': training_parameters['BOTTLENECK_CHANNEL_SIZE'],
-        'message_len': training_parameters['MESSAGE_LEN']
+        'data_file_path': os.path.join(INFERENCE_DATA_FOLDER, DATASET),
+        'num_packets': training_parameters['NUM_PACKETS'],
+        'packet_len': training_parameters['PACKET_LEN'],
+        'bottleneck_channel_size': training_parameters['BOTTLENECK_CHANNEL_SIZE']
     }
 
-    data = get_inference_data(**inference_data_parameters)
+    data = get_dataset(**inference_data_parameters)
 
     dataloader = DataLoader(data, batch_size=len(data), shuffle=False)
     with torch.no_grad():
@@ -81,7 +82,8 @@ if __name__ == '__main__':
     modified_audio = modified_audio.squeeze()
 
     # %% Accuracy
-    test_acc = calc_mean_accuracy(reconstructed_messages, original_messages, high=training_parameters['HIGH'])
+    test_acc = calc_mean_accuracy(original_messages, reconstructed_messages,
+                                  packet_len=training_parameters['PACKET_LEN'])
 
     print("Test accuracy is {:3.2f} %".format(test_acc * 100))
 

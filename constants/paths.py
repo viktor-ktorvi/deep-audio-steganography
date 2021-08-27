@@ -12,4 +12,6 @@ AUDIO_FOLDER = 'audio'
 ORIGINAL_AUDIO_FOLDER = 'original'
 STEGANOGRAPHIC_AUDIO_FOLDER = 'steganographic'
 MODEL_PARAMETERS_FOLDER = 'parameters'
+TRAINING_PARAMETERS_JSON = 'training parameters.json'
+
 
