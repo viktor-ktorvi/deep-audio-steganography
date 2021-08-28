@@ -4,11 +4,11 @@ from pathlib import Path
 from tqdm import tqdm
 from scipy.io.wavfile import write
 
-from constants.paths import MIXED_DATA_FOLDER, DATA_FILENAME, MERGED_DATASET
+from constants.paths import MIXED_DATA_FOLDER, DATA_FILENAME, MERGED_DATASET, INFERENCE_DATA_FOLDER
 from constants.constants import FS
 
 DATASETS = ['birds', 'piano', 'drums', 'speech', 'digits']
-DATA_FOLDER = MIXED_DATA_FOLDER
+DATA_FOLDER = INFERENCE_DATA_FOLDER
 FILENAME = DATA_FILENAME
 NEW_DATASET_FOLDER = MERGED_DATASET
 RANDOM_SUBSET_NUM = 30

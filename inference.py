@@ -21,11 +21,13 @@ from train import TRAINING_PARAMETERS_JSON
 MODEL_TO_LOAD = '64 x 1 bit mixed'
 MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
-DATASET = 'birds'
+DATASET = 'merged data'
 
 RANDOM_RESULTS_FOLDER = 'random examples'
 WORST_SNR_FOLDER = 'worst snr examples'
 BEST_SNR_EXAMPLES = 'best snr examples'
+
+BATCH_SIZE = 1000
 
 RANDOM_SUBSET_NUM = 20
 NUM_BINS = 30
@@ -74,7 +76,7 @@ if __name__ == '__main__':
 
     data = get_dataset(**inference_data_parameters)
 
-    dataloader = DataLoader(data, batch_size=len(data), shuffle=False)
+    dataloader = DataLoader(data, batch_size=len(data) if len(data) < BATCH_SIZE else BATCH_SIZE, shuffle=True)
     with torch.no_grad():
         original_messages, reconstructed_messages, original_audio, modified_audio = pass_data_through(model, dataloader,
                                                                                                       DEVICE)
@@ -100,7 +102,7 @@ if __name__ == '__main__':
     delete_all_files_in_folder(STEG_RANDOM_PATH)
     delete_all_files_in_folder(ORIGINAL_RANDOM_PATH)
 
-    random_subset_indices = np.random.randint(low=0, high=len(data), size=RANDOM_SUBSET_NUM)
+    random_subset_indices = np.random.randint(low=0, high=dataloader.batch_size, size=RANDOM_SUBSET_NUM)
 
     print('Saving results...')
     for idx in random_subset_indices:

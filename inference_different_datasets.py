@@ -1,22 +1,19 @@
 import os
 import numpy as np
 import torch
-from scipy.io.wavfile import write
-from scipy.signal import spectrogram
-from pathlib import Path
 from torch.utils.data import DataLoader
 from matplotlib import pyplot as plt
 
 from utils.data_loading import get_dataset
-from utils.inference_utils import signal_to_noise_ratio, load_saved_model, log_intensity, delete_all_files_in_folder
+from utils.inference_utils import load_saved_model
 from utils.train_utils import pass_data_through
 from utils.accuracy import calc_mean_accuracy
 
-from constants.paths import SAVE_MODELS_PATH, MODEL_PARAMETERS_FOLDER, INFERENCE_DATA_FOLDER, INFERENCE_RESULTS_FOLDER, \
-    STEGANOGRAPHIC_AUDIO_FOLDER, ORIGINAL_AUDIO_FOLDER, DATA_FILENAME
-from constants.constants import DEVICE, FS
+from constants.paths import SAVE_MODELS_PATH, MODEL_PARAMETERS_FOLDER, INFERENCE_DATA_FOLDER, DATA_FILENAME
+from constants.constants import DEVICE
 
 from train import TRAINING_PARAMETERS_JSON
+from inference import SMALL_SIZE, MEDIUM_SIZE, BIGGER_SIZE
 
 MODEL_TO_LOAD = '64 x 1 bit mixed'
 MODEL_NAME = 'autoencoder'
@@ -25,8 +22,6 @@ MODEL_EXTENSION = '.pt'
 DATASETS = ['birds', 'piano', 'drums', 'speech', 'digits']
 
 NUM_BINS = 30
-
-from inference import SMALL_SIZE, MEDIUM_SIZE, BIGGER_SIZE
 
 if __name__ == '__main__':
     # %% Plot specs
