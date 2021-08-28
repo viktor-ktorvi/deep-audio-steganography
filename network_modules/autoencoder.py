@@ -17,6 +17,9 @@ class AutoEncoder(nn.Module):
 
         return reconstructed_message, modified_audio
 
+    def decode(self, modified_audio):
+        return self.decoder(modified_audio)
+
 
 if __name__ == '__main__':
     pass

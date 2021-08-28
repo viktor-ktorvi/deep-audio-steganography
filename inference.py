@@ -104,7 +104,7 @@ if __name__ == '__main__':
 
     random_subset_indices = np.random.randint(low=0, high=dataloader.batch_size, size=RANDOM_SUBSET_NUM)
 
-    print('Saving results...')
+    print('Saving results...', end='')
     for idx in random_subset_indices:
         write(os.path.join(ORIGINAL_RANDOM_PATH, DATASET + str(idx) + '.wav'), FS, original_audio[idx, :])
         write(os.path.join(STEG_RANDOM_PATH, DATASET + str(idx) + '.wav'), FS, modified_audio[idx, :])
@@ -149,12 +149,8 @@ if __name__ == '__main__':
         write(os.path.join(STEG_BEST_EXAMPLES_PATH, DATASET + str(idx) + '.wav'), FS, modified_audio[idx, :])
 
     # TODO do some tests as in SNR, spectrograms, noise and quantization resistance
-    #  histogrm of SNR because some are really good, some are trash (maybe train on more data)
     #  test idea: shift signal by n samples cyclicly and see if it recnostructs the message correctly
-    #  train on ALL classes!
     # TODO Test on real sound data! Something sampled at 16 kHz and chopped up into 16384 sample chunks
-
-    # TODO Make messages in gray code, or just mention it...
 
     # %% Spectrogram
 
@@ -198,3 +194,34 @@ if __name__ == '__main__':
 
     # TODO Ovde se vidi da nekad krije na odredjenim ucestanostima, to je lose i trebalo bi u radu da pricam da
     #  tu adversarial training moze doci u pricu
+
+    # %% Robustness
+    # TODO uradi za vise sigma pa plotuj tacnost
+
+    std = np.std(modified_audio)
+    percentages = np.linspace(start=0, stop=1, num=11)
+    test_accs = []
+
+    for percentage in percentages:
+        noisy_modified_audio = modified_audio + percentage * std * np.random.randn(
+            *[shape for shape in modified_audio.shape])
+
+        noisy_reconstructed_messages = model.decode(
+            torch.tensor(noisy_modified_audio, dtype=torch.float32).unsqueeze(1).to(DEVICE))
+
+        noisy_reconstructed_messages = noisy_reconstructed_messages.detach().cpu().numpy()
+
+        test_acc = calc_mean_accuracy(original_messages, noisy_reconstructed_messages,
+                                      packet_len=training_parameters['PACKET_LEN'])
+        test_accs.append(test_acc)
+        print("\nTest accuracy {:3.2f} % on relative sigma {:3.1f} %".format(test_acc * 100, percentage * 100))
+
+    # %% Plot accuracies in reltion to noise
+
+    # TODO maybe a fancy plot option here, fix anotations
+
+    plt.figure(tight_layout=True)
+    plt.plot(percentages, test_accs)
+    plt.title('Accuracy in the presence of noise')
+    plt.xlabel('sigma_n / \sigma_0')
+    plt.ylabel('Accuracy [%]')
