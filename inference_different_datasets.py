@@ -15,7 +15,7 @@ from constants.constants import DEVICE
 from train import TRAINING_PARAMETERS_JSON
 from inference import SMALL_SIZE, MEDIUM_SIZE, BIGGER_SIZE
 
-MODEL_TO_LOAD = '64 x 1 bit mixed'
+MODEL_TO_LOAD = '512 x 4 bit mixed'
 MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
 

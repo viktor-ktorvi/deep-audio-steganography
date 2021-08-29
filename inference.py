@@ -18,7 +18,7 @@ from constants.constants import DEVICE, FS
 
 from train import TRAINING_PARAMETERS_JSON
 
-MODEL_TO_LOAD = '64 x 1 bit mixed'
+MODEL_TO_LOAD = '512 x 4 bit mixed'
 MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
 DATASET = 'merged data'
@@ -199,7 +199,7 @@ if __name__ == '__main__':
     # TODO uradi za vise sigma pa plotuj tacnost
 
     std = np.std(modified_audio)
-    percentages = np.linspace(start=0, stop=1, num=11)
+    percentages = np.linspace(start=0, stop=0.2, num=11)
     test_accs = []
 
     for percentage in percentages:
@@ -225,3 +225,6 @@ if __name__ == '__main__':
     plt.title('Accuracy in the presence of noise')
     plt.xlabel('sigma_n / \sigma_0')
     plt.ylabel('Accuracy [%]')
+
+    # TODO U radu pricati o dva slucaja, kada je trnirano na 1 skupu, radi dobro al slabo generalizuje, a kad je na svim
+    #  skupovima onda za veci kapacitet dobro generalizuje ali los kvalitet ima
