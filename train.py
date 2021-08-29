@@ -18,8 +18,8 @@ from utils.accuracy import pass_data_through, calc_accuracy
 from utils.data_loading import get_dataset, split_dataset
 from utils.train_utils import save_parameters
 
-DATASET_NAME = MERGED_DATASET
-DATA_PATH = MIXED_DATA_FOLDER
+DATASET_NAME = 'birds'
+DATA_PATH = TRAIN_DATA_PATH
 HOLDOUT_RATIO = 0.95
 
 VALIDATION_BATCH_SIZE = 100
@@ -27,16 +27,16 @@ WAV_SAVING_NUM = 30
 
 # TODO Proveriti da l je packet len zaista 4 jer posle prve epohe je imao tacnost od 0.5 sto je cundo
 
-PACKET_LEN = 4
+PACKET_LEN = 1
 NUM_PACKETS = 512
 
 STRIDES = [4, 4, 2]
 BOTTLENECK_CHANNEL_SIZE = 25
 BATCH_SIZE = 64
-NUM_EPOCHS = 300
-LEARNING_RATE = 0.00001
+NUM_EPOCHS = 100
+LEARNING_RATE = 0.00005
 
-MODEL_FOLDER_NAME = str(NUM_PACKETS) + ' x ' + str(PACKET_LEN) + ' bit mixed'
+MODEL_FOLDER_NAME = str(NUM_PACKETS) + ' x ' + str(PACKET_LEN) + ' bit'
 MODEL_PATH = os.path.join(SAVE_MODELS_PATH, MODEL_FOLDER_NAME)
 ORIGINAL_AUDIO_PATH = os.path.join(MODEL_PATH, AUDIO_FOLDER, ORIGINAL_AUDIO_FOLDER)
 STEGANOGRAPHIC_AUDIO_PATH = os.path.join(MODEL_PATH, AUDIO_FOLDER, STEGANOGRAPHIC_AUDIO_FOLDER)
