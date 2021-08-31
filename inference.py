@@ -8,8 +8,7 @@ from torch.utils.data import DataLoader
 from matplotlib import pyplot as plt
 
 from utils.data_loading import get_dataset
-from utils.inference_utils import signal_to_noise_ratio, load_saved_model, log_intensity, delete_all_files_in_folder, \
-    quantize_array
+from utils.inference_utils import signal_to_noise_ratio, load_saved_model, log_intensity, delete_all_files_in_folder
 from utils.train_utils import pass_data_through
 from utils.accuracy import calc_mean_accuracy
 
@@ -35,8 +34,6 @@ NUM_BINS = 30
 
 NUM_WORST = 10
 NUM_BEST = 10
-
-
 
 if __name__ == '__main__':
     # %% Plot specs
@@ -193,66 +190,3 @@ if __name__ == '__main__':
 
     # TODO Ovde se vidi da nekad krije na odredjenim ucestanostima, to je lose i trebalo bi u radu da pricam da
     #  tu adversarial training moze doci u pricu
-
-    # %% Robustness
-    # TODO uradi za vise sigma pa plotuj tacnost
-
-    std = np.std(modified_audio)
-    percentages = np.linspace(start=0, stop=1, num=11)
-    test_accs_noise = []
-
-    for percentage in percentages:
-        noisy_modified_audio = modified_audio + percentage * std * np.random.randn(
-            *[shape for shape in modified_audio.shape])
-
-        with torch.no_grad():
-            noisy_reconstructed_messages = model.decode(
-                torch.tensor(noisy_modified_audio, dtype=torch.float32).unsqueeze(1).to(DEVICE))
-
-        noisy_reconstructed_messages = noisy_reconstructed_messages.detach().cpu().numpy()
-
-        test_acc = calc_mean_accuracy(original_messages, noisy_reconstructed_messages,
-                                      packet_len=training_parameters['PACKET_LEN'])
-        test_accs_noise.append(test_acc)
-        print("\nTest accuracy {:3.2f} % for relative sigma {:3.1f} %".format(test_acc * 100, percentage * 100))
-
-    # %% Plot accuracies in reltion to noise
-
-    # TODO maybe a fancy plot option here, fix anotations
-
-    plt.figure(tight_layout=True)
-    plt.plot(percentages, test_accs_noise)
-    plt.title('Accuracy in the presence of noise')
-    plt.xlabel('sigma_n / \sigma_0')
-    plt.ylabel('Accuracy [%]')
-
-    # TODO U radu pricati o dva slucaja, kada je trnirano na 1 skupu, radi dobro al slabo generalizuje, a kad je na svim
-    #  skupovima onda za veci kapacitet dobro generalizuje ali los kvalitet ima
-
-    # %% Quantization
-
-    quant_nums = 2 ** np.arange(start=10, stop=5, step=-1)
-    test_accs_quant = []
-
-    for quant_num in quant_nums:
-        quantized_modified_audio = quantize_array(modified_audio, num=quant_num)
-        with torch.no_grad():
-            quantization_reconstructed_messages = model.decode(
-                torch.tensor(quantized_modified_audio, dtype=torch.float32).unsqueeze(1).to(DEVICE))
-
-        quantization_reconstructed_messages = quantization_reconstructed_messages.detach().cpu().numpy()
-
-        test_acc = calc_mean_accuracy(original_messages, quantization_reconstructed_messages,
-                                      packet_len=training_parameters['PACKET_LEN'])
-        test_accs_quant.append(test_acc)
-        print("\nTest accuracy {:3.2f} % for {:d} quantization levels".format(test_acc * 100, quant_num))
-
-    # %% Plot accuracies in reltion to number of quantization levels
-
-    plt.figure(tight_layout=True)
-    plt.plot(quant_nums, test_accs_quant)
-    plt.title('Accuracy in the presence of quantization')
-    plt.xlabel('no. quantization levels')
-    plt.ylabel('Accuracy [%]')
-
-    # TODO Plotovati i sum i kvantizaciju kao subplot, i onda tako za svaki model, 1x2 i tako 4 puta
