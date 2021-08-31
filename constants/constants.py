@@ -18,3 +18,7 @@ KERNELS = {
     "medium": 33,
     "small": 5
 }
+
+SMALL_SIZE = 18
+MEDIUM_SIZE = 18
+BIGGER_SIZE = 18

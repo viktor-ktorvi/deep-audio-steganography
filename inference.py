@@ -15,7 +15,7 @@ from utils.accuracy import calc_mean_accuracy
 
 from constants.paths import SAVE_MODELS_PATH, MODEL_PARAMETERS_FOLDER, INFERENCE_DATA_FOLDER, INFERENCE_RESULTS_FOLDER, \
     STEGANOGRAPHIC_AUDIO_FOLDER, ORIGINAL_AUDIO_FOLDER, DATA_FILENAME
-from constants.constants import DEVICE, FS
+from constants.constants import DEVICE, FS, SMALL_SIZE, MEDIUM_SIZE, BIGGER_SIZE
 
 from train import TRAINING_PARAMETERS_JSON
 
@@ -36,9 +36,7 @@ NUM_BINS = 30
 NUM_WORST = 10
 NUM_BEST = 10
 
-SMALL_SIZE = 18
-MEDIUM_SIZE = 18
-BIGGER_SIZE = 18
+
 
 if __name__ == '__main__':
     # %% Plot specs

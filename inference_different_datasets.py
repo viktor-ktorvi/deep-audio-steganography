@@ -13,7 +13,7 @@ from constants.paths import SAVE_MODELS_PATH, MODEL_PARAMETERS_FOLDER, INFERENCE
 from constants.constants import DEVICE
 
 from train import TRAINING_PARAMETERS_JSON
-from inference import SMALL_SIZE, MEDIUM_SIZE, BIGGER_SIZE
+from constants.constants import SMALL_SIZE, MEDIUM_SIZE, BIGGER_SIZE
 
 MODEL_TO_LOAD = '512 x 4 bit mixed'
 MODEL_NAME = 'autoencoder'
