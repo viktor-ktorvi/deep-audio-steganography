@@ -47,3 +47,24 @@ def delete_all_files_in_folder(PATH):
     files = glob.glob(os.path.join(PATH, '*'))
     for f in files:
         os.remove(f)
+
+
+def quantize_array(a, num):
+    array_min = np.amin(a)
+    array_max = np.amax(a)
+    quants = np.linspace(start=array_min, stop=array_max, num=num)
+
+    my_bins = np.diff(quants) / 2 + quants[:-1]
+
+    # add min and max to interval but widen the interval a little
+    my_bins = np.hstack((array_min + np.sign(array_min) * np.abs(array_min) * 0.01,
+                         my_bins,
+                         array_max + np.sign(array_max) * np.abs(array_max) * 0.01))
+
+    indices = np.digitize(x=a, bins=my_bins)
+    return quants[indices - 1]
+
+
+if __name__ == '__main__':
+    a = np.random.randn(2, 16384)
+    q = quantize_array(a, num=8)
