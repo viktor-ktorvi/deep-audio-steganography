@@ -118,15 +118,17 @@ def docode_gray_code(gray_array, n_digits):
 
 
 if __name__ == '__main__':
-    num_packets = 120
-    packet_len = 5
-    num_messages = 27
+    num_packets = 3
+    packet_len = 4
+    num_messages = 1
 
     binary_messages = generate_binary_messages(num_bits=num_packets * packet_len, num_messages=num_messages)
-    preprocessed_messages = preprocess_messages(binary_messages, packet_len)
+    print('Binary: ', binary_messages)
+    decimal_messages = binary2decimal(binary_messages, packet_len)
+    print('Decimal: ', decimal_messages)
+    gray_decimal_messages = gray_code(decimal_messages)
+    print('Gray: ', gray_decimal_messages)
+    scaled_gray_decimal_messages = scale_messages(messages=gray_decimal_messages, high=2 ** packet_len)
+    print('Scaled: ', scaled_gray_decimal_messages)
 
-    reconstructed_binary_messages = postprocess_messages(preprocessed_messages, packet_len)
 
-    assert binary_messages.all() == reconstructed_binary_messages.all()
-
-    print(np.unique(preprocessed_messages))
