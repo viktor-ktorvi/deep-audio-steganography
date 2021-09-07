@@ -18,6 +18,8 @@ from constants.constants import DEVICE, FS, SMALL_SIZE, MEDIUM_SIZE, BIGGER_SIZE
 
 from train import TRAINING_PARAMETERS_JSON
 
+# TODO Pretrenirati sva 4 modela za noc i kusur, 512 x 4 mixed ne mora, to ne moze bolje
+
 MODEL_TO_LOAD = '512 x 4 bit mixed'
 MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
@@ -70,19 +72,26 @@ if __name__ == '__main__':
         'bottleneck_channel_size': training_parameters['BOTTLENECK_CHANNEL_SIZE']
     }
 
-    data = get_dataset(**inference_data_parameters)
+    print('Loading data... ', end='')
 
+    data = get_dataset(**inference_data_parameters)
     dataloader = DataLoader(data, batch_size=len(data) if len(data) < BATCH_SIZE else BATCH_SIZE, shuffle=True)
+
+    print('Done')
+
+    print('Starting inference... ', end='')
     with torch.no_grad():
         original_messages, reconstructed_messages, original_audio, modified_audio = pass_data_through(model, dataloader,
                                                                                                       DEVICE)
     modified_audio = modified_audio.squeeze()
 
+    print('Done')
+
     # %% Accuracy
     test_acc = calc_mean_accuracy(original_messages, reconstructed_messages,
                                   packet_len=training_parameters['PACKET_LEN'])
 
-    print("Test accuracy is {:3.2f} %".format(test_acc * 100))
+    print("Test accuracy is {:3.2f} %\n".format(test_acc * 100))
 
     # %% Saving some examples
     STEG_PATH = os.path.join(INFERENCE_RESULTS_FOLDER, STEGANOGRAPHIC_AUDIO_FOLDER)
