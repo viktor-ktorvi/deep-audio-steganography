@@ -25,18 +25,20 @@ HOLDOUT_RATIO = 0.95
 VALIDATION_BATCH_SIZE = 100
 WAV_SAVING_NUM = 30
 
-# TODO Proveriti da l je packet len zaista 4 jer posle prve epohe je imao tacnost od 0.5 sto je cundo
+# TODO Bilo bi bolje da je loss za enkoder neki perceptualni jer ok je ako je razlika velika kad je i signal veliki,
+#  taj fazon, modifikuje dosta gde nije perceptualno bitno to nije isto kao i kad toliko modifikuje gde se oseca
+#  kad bi bila neka f-ja 
 
-PACKET_LEN = 1
+PACKET_LEN = 4
 NUM_PACKETS = 512
 
 STRIDES = [4, 4, 2]
 BOTTLENECK_CHANNEL_SIZE = 25
 BATCH_SIZE = 64
-NUM_EPOCHS = 100
+NUM_EPOCHS = 200
 LEARNING_RATE = 0.00005
 
-MODEL_FOLDER_NAME = str(NUM_PACKETS) + ' x ' + str(PACKET_LEN) + ' bit'
+MODEL_FOLDER_NAME = str(NUM_PACKETS) + ' x ' + str(PACKET_LEN) + ' bit ' + DATASET_NAME
 MODEL_PATH = os.path.join(SAVE_MODELS_PATH, MODEL_FOLDER_NAME)
 ORIGINAL_AUDIO_PATH = os.path.join(MODEL_PATH, AUDIO_FOLDER, ORIGINAL_AUDIO_FOLDER)
 STEGANOGRAPHIC_AUDIO_PATH = os.path.join(MODEL_PATH, AUDIO_FOLDER, STEGANOGRAPHIC_AUDIO_FOLDER)
