@@ -1,6 +1,8 @@
 import numpy as np
 import torch
 from torch.utils.data import TensorDataset
+import soundfile as sf
+import os
 
 
 def reshape_messages(messages, bottleneck_channel_size):
@@ -117,6 +119,19 @@ def docode_gray_code(gray_array, n_digits):
     return decoded_array
 
 
+def get_segments_from_sound(path, segment_len):
+    sound, samplerate = sf.read(path)
+
+    num_segments = len(sound) // segment_len
+
+    segments = np.zeros((num_segments, segment_len))
+
+    for i in range(num_segments):
+        segments[i, :] = sound[i * segment_len: (i + 1) * segment_len]
+
+    return segments
+
+
 if __name__ == '__main__':
     num_packets = 3
     packet_len = 4
@@ -130,5 +145,3 @@ if __name__ == '__main__':
     print('Gray: ', gray_decimal_messages)
     scaled_gray_decimal_messages = scale_messages(messages=gray_decimal_messages, high=2 ** packet_len)
     print('Scaled: ', scaled_gray_decimal_messages)
-
-

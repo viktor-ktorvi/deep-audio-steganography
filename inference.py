@@ -18,12 +18,10 @@ from constants.constants import DEVICE, FS, SMALL_SIZE, MEDIUM_SIZE, BIGGER_SIZE
 
 from train import TRAINING_PARAMETERS_JSON
 
-# TODO Pretrenirati sva 4 modela za noc i kusur, 512 x 4 mixed ne mora, to ne moze bolje
-
-MODEL_TO_LOAD = '512 x 4 bit mixed'
+MODEL_TO_LOAD = '512 x 4 bit birds'
 MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
-DATASET = 'merged data'
+DATASET = 'real data'
 
 RANDOM_RESULTS_FOLDER = 'random examples'
 WORST_SNR_FOLDER = 'worst snr examples'
@@ -75,7 +73,7 @@ if __name__ == '__main__':
     print('Loading data... ', end='')
 
     data = get_dataset(**inference_data_parameters)
-    dataloader = DataLoader(data, batch_size=len(data) if len(data) < BATCH_SIZE else BATCH_SIZE, shuffle=True)
+    dataloader = DataLoader(data, batch_size=len(data) if len(data) < BATCH_SIZE else BATCH_SIZE, shuffle=False)
 
     print('Done')
 
