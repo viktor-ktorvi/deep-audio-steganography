@@ -14,10 +14,10 @@ from constants.constants import DEVICE, SMALL_SIZE, MEDIUM_SIZE, BIGGER_SIZE
 
 from train import TRAINING_PARAMETERS_JSON
 
-MODEL_TO_LOAD = '512 x 4 bit mixed'
+MODEL_TO_LOAD = '512 x 4 bit merged data'
 MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
-DATASET = 'merged data'
+DATASET = 'real data'
 
 BATCH_SIZE = 1000
 
@@ -80,22 +80,10 @@ if __name__ == '__main__':
         noisy_reconstructed_messages = noisy_reconstructed_messages.detach().cpu().numpy()
 
         test_acc = calc_mean_accuracy(original_messages, noisy_reconstructed_messages,
-                                      packet_len=training_parameters['PACKET_LEN'])
+                                      packet_len=training_parameters['PACKET_LEN']) * 100
         test_accs_noise.append(test_acc)
-        print("\nTest accuracy {:3.2f} % for relative sigma {:3.1f} %".format(test_acc * 100, percentage * 100))
+        print("\nTest accuracy {:3.2f} % for relative sigma {:3.1f} %".format(test_acc, percentage * 100))
 
-    # %% Plot accuracies in reltion to noise
-
-    # TODO maybe a fancy plot option here, fix anotations
-
-    plt.figure(tight_layout=True)
-    plt.plot(percentages, test_accs_noise)
-    plt.title('Accuracy in the presence of noise')
-    plt.xlabel('sigma_n / \sigma_0')
-    plt.ylabel('Accuracy [%]')
-
-    # TODO U radu pricati o dva slucaja, kada je trnirano na 1 skupu, radi dobro al slabo generalizuje, a kad je na svim
-    #  skupovima onda za veci kapacitet dobro generalizuje ali los kvalitet ima
     # %% Quantization
 
     quant_nums = 2 ** np.arange(start=10, stop=5, step=-1)
@@ -110,16 +98,33 @@ if __name__ == '__main__':
         quantization_reconstructed_messages = quantization_reconstructed_messages.detach().cpu().numpy()
 
         test_acc = calc_mean_accuracy(original_messages, quantization_reconstructed_messages,
-                                      packet_len=training_parameters['PACKET_LEN'])
+                                      packet_len=training_parameters['PACKET_LEN']) * 100
         test_accs_quant.append(test_acc)
-        print("\nTest accuracy {:3.2f} % for {:d} quantization levels".format(test_acc * 100, quant_num))
+        print("\nTest accuracy {:3.2f} % for {:d} quantization levels".format(test_acc, quant_num))
 
-    # %% Plot accuracies in reltion to number of quantization levels
 
-    plt.figure(tight_layout=True)
-    plt.plot(quant_nums, test_accs_quant)
-    plt.title('Accuracy in the presence of quantization')
-    plt.xlabel('no. quantization levels')
-    plt.ylabel('Accuracy [%]')
+
+    # TODO U radu pricati o dva slucaja, kada je trnirano na 1 skupu, radi dobro al slabo generalizuje, a kad je na svim
+    #  skupovima onda za veci kapacitet dobro generalizuje ali los kvalitet ima
 
     # TODO Plotovati i sum i kvantizaciju kao subplot, i onda tako za svaki model, 1x2 i tako 4 puta
+    # %%
+    height = 1
+    width = 2
+    marker = 's'
+    markersize = 10
+    fig, ax = plt.subplots(height, width, sharey='all', sharex='none', tight_layout=True)
+    ax[0].grid(b=True, axis='both', linestyle=':')
+    ax[0].plot(percentages, test_accs_noise, marker=marker, linestyle=':', markersize=markersize)
+    ax[0].set_title('Tačnost rekonstrukcije u prisustvu šuma')
+    ax[0].set_xlabel('$\sigma_n/\sigma_0$')
+    ax[0].set_ylabel('Tačnost u %')
+
+    ax[1].grid(b=True, axis='both', linestyle=':')
+    ax[1].plot(quant_nums, test_accs_quant, marker=marker, linestyle=':', markersize=markersize)
+    ax[1].set_title('Tačnost rekonstrukcije pri kvantizaciji')
+    ax[1].set_xlabel('br. kvantizacionih nivoa')
+
+    figManager = plt.get_current_fig_manager()
+    figManager.window.showMaximized()
+    plt.show()

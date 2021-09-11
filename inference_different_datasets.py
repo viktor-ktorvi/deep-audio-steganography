@@ -15,13 +15,15 @@ from constants.constants import DEVICE
 from train import TRAINING_PARAMETERS_JSON
 from constants.constants import SMALL_SIZE, MEDIUM_SIZE, BIGGER_SIZE
 
-MODEL_TO_LOAD = '512 x 4 bit mixed'
+MODEL_TO_LOAD = '512 x 4 bit merged data'
 MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
 
-DATASETS = ['birds', 'piano', 'drums', 'speech', 'digits']
+DATASETS = ['birds', 'merged data', 'real data']
+NAMES = ['cvrkut ptica', 'sve klase', 'LibriSpeech']
 
 NUM_BINS = 30
+BATCH_SIZE = 640
 
 if __name__ == '__main__':
     # %% Plot specs
@@ -64,7 +66,7 @@ if __name__ == '__main__':
 
         data = get_dataset(**inference_data_parameters)
 
-        dataloader = DataLoader(data, batch_size=len(data), shuffle=False)
+        dataloader = DataLoader(data, batch_size=BATCH_SIZE, shuffle=False)
         with torch.no_grad():
             original_messages, reconstructed_messages, original_audio, modified_audio = pass_data_through(model,
                                                                                                           dataloader,
@@ -100,13 +102,14 @@ if __name__ == '__main__':
     # plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
     for i in range(len(snrs)):
         ax[i].set_box_aspect(1.7)
-        ax[i].hist(x=snrs[i], bins=NUM_BINS, label='histogram')
-        ax[i].axvline(x=mean_snrs[i], color='lime', label='mean = {:2.2f} [dB]'.format(mean_snrs[i]))
+        ax[i].hist(x=snrs[i], bins=NUM_BINS, label='histogram', density=True)
+        ax[i].axvline(x=mean_snrs[i], color='lime', label='sr. vrednost = {:2.2f} [dB]'.format(mean_snrs[i]))
         ax[i].axvline(x=median_snrs[i], color='orange', label='median = {:2.2f} [dB]'.format(median_snrs[i]))
-        ax[i].set_title(DATASETS[i] if DATASETS[i] != 'birds' else 'birds (train set)')
+        ax[i].set_title(NAMES[i])
         ax[i].set_xlabel('SNR [dB]')
         ax[i].set_xlim(xmin, xmax)
-        ax[i].legend(bbox_to_anchor=(1.3, -0.35))
+        # ax[i].legend(bbox_to_anchor=(1.0, -0.15))
+        ax[i].legend(loc='upper left')
 
     figManager = plt.get_current_fig_manager()
     figManager.window.showMaximized()
