@@ -15,7 +15,7 @@ from constants.constants import DEVICE
 from train import TRAINING_PARAMETERS_JSON
 from constants.constants import SMALL_SIZE, MEDIUM_SIZE, BIGGER_SIZE
 
-MODEL_TO_LOAD = '512 x 4 bit merged data'
+MODEL_TO_LOAD = '512 x 1 bit birds'
 MODEL_NAME = 'autoencoder'
 MODEL_EXTENSION = '.pt'
 
@@ -100,16 +100,16 @@ if __name__ == '__main__':
     height = 1
     fig, ax = plt.subplots(height, width, sharey='all', sharex='none', tight_layout=True)
     # plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
+    ax[0].set_ylabel('histogram')
+    print(MODEL_TO_LOAD)
     for i in range(len(snrs)):
-        ax[i].set_box_aspect(1.7)
+        ax[i].set_box_aspect(1.2)
         ax[i].hist(x=snrs[i], bins=NUM_BINS, label='histogram', density=True)
-        ax[i].axvline(x=mean_snrs[i], color='lime', label='sr. vrednost = {:2.2f} [dB]'.format(mean_snrs[i]))
-        ax[i].axvline(x=median_snrs[i], color='orange', label='median = {:2.2f} [dB]'.format(median_snrs[i]))
         ax[i].set_title(NAMES[i])
         ax[i].set_xlabel('SNR [dB]')
         ax[i].set_xlim(xmin, xmax)
+        print(NAMES[i], "{:10.2f}".format(mean_snrs[i]))
         # ax[i].legend(bbox_to_anchor=(1.0, -0.15))
-        ax[i].legend(loc='upper left')
 
     figManager = plt.get_current_fig_manager()
     figManager.window.showMaximized()

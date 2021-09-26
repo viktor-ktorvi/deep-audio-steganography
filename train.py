@@ -29,7 +29,7 @@ WAV_SAVING_NUM = 30
 #  taj fazon, modifikuje dosta gde nije perceptualno bitno to nije isto kao i kad toliko modifikuje gde se oseca
 #  kad bi bila neka f-ja 
 
-PACKET_LEN = 4
+PACKET_LEN = 1
 NUM_PACKETS = 512
 
 STRIDES = [4, 4, 2]
@@ -46,9 +46,9 @@ MODEL_PARAMETERS_PATH = os.path.join(MODEL_PATH, MODEL_PARAMETERS_FOLDER)
 
 if __name__ == '__main__':
     # %% Seeds
-    np.random.seed(1)
-    torch.manual_seed(1)
-    torch.cuda.manual_seed(1)
+    # np.random.seed(1)
+    # torch.manual_seed(1)
+    # torch.cuda.manual_seed(1)
 
     # %% Loading the data
     # TODO normalizing seems to make it worse, why? See what people who work with timeseries' do.
